@@ -1,6 +1,6 @@
 # Zoom Ionic Software Development Kit (SDK)
 
-** Note: This is a community project initiated by Zoom. Zoom does not actively enhance the interfaces in the Ionic plugin. If you would like to contribute, please contact us. Thanks! :)**
+**Note: This is a community project initiated by Zoom. Zoom does not actively enhance the interfaces in the Ionic plugin. If you would like to contribute, please contact us. Thanks! :)**
 
 > Our brand new [Zoom Developer Community Forum](https://devforum.zoom.us/) is now online!!! Check it out! We are here to help! :D
 
@@ -30,9 +30,9 @@ Before you try out our SDK, you would need the following to get started:
     * Android 4.0 (API Level 14) or later.
   * iOS
     * iPhone or iPad
-* ** npm @6.4+ **
-* ** ionic @3 **
-* ** ionic native @4.17+ **
+* **npm@6.4+**
+* **ionic@3**
+* **ionic native@4.17+**
 
 ### Installing
 
@@ -54,7 +54,6 @@ ionic cordova plugin add ../path-to-repo/
 
 
 ### Usage
-
 0.  Import the plugin
 
 ```
@@ -62,7 +61,6 @@ import { Zoom } from '@ionic-native/zoom';
 
 constructor(private zoomService: Zoom) { }
 ```
-
 1. Initialize Zoom SDK
 Initialize Zoom SDK, need to be called when app fired up.
 ```
