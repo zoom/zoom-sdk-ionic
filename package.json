@@ -1,0 +1,17 @@
+{
+  "name": "cordova.plugin.zoom",
+  "version": "0.1.0",
+  "description": "",
+  "cordova": {
+    "id": "cordova.plugin.zoom",
+    "platforms": [
+      "android"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "",
+  "license": "ISC"
+}
