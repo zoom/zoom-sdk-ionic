@@ -16,7 +16,7 @@ Zoom SDK makes it easy to integrate Zoom with your mobile applications, and boos
 ## Getting Started
 
 The following instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-* For detailed instructions, please refer to our documentation website: [[https://marketplace.zoom.us/docs/sdk/ionic](https://marketplace.zoom.us/docs/sdk/ionic)];
+* For detailed instructions, please refer to our documentation website: [[https://marketplace.zoom.us/docs/hybrid-support/ionic](https://marketplace.zoom.us/docs/hybrid-support/ionic)];
 * If you need support or assistance, please visit our [Zoom Developer Community Forum](https://devforum.zoom.us/);
 
 ### Prerequisites
@@ -49,7 +49,7 @@ Clone or download a copy of our SDK files from GitHub. After you unzipped the fi
 ```
 In your Ionic application directory, run the following to install the plugin:
 ```
-ionic cordova plugin add ../path-to-repo/
+ionic cordova plugin add cordova.plugin.zoom
 ```
 
 
@@ -178,7 +178,7 @@ In order to use the camera and microphone on iOS, please add the following in yo
 
 ## Documentation
 
-Please visit [[https://marketplace.zoom.us/docs/sdk/ionic](https://marketplace.zoom.us/docs/sdk/ionic)] for details of each features and functions.
+Please visit [[https://marketplace.zoom.us/docs/hybrid-support/ionic](https://marketplace.zoom.us/docs/hybrid-support/ionic)] for details of each features and functions.
 
 ## Versioning
 
