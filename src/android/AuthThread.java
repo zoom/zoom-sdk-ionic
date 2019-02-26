@@ -127,7 +127,8 @@ public class AuthThread implements Callable<Boolean>, ZoomSDKInitializeListener 
                         this.appKey,                                    // application key
                         this.appSecret,                                 // application secret
                         this.webDomain,                                 // application web domain
-                        this                                            // auth listener
+                        this,                                            // auth listener
+                        true
                 );
                 break;
             default:

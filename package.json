@@ -1,7 +1,7 @@
 {
   "name": "cordova.plugin.zoom",
-  "version": "0.1.0",
-  "description": "",
+  "version": "0.1.2",
+  "description": "A Cordova Plugin for Zoom Video Conferencing",
   "cordova": {
     "id": "cordova.plugin.zoom",
     "platforms": [
@@ -12,6 +12,6 @@
     "ecosystem:cordova",
     "cordova-android"
   ],
-  "author": "",
+  "author": "Zoom Video Communication, Inc.",
   "license": "ISC"
 }

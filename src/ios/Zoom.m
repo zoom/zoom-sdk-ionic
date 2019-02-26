@@ -29,7 +29,7 @@
             return;
         }
 
-        [[MobileRTC sharedRTC] setMobileRTCDomain:kSDKDomain];
+        [MobileRTC initializeWithDomain:kSDKDomain enableLog:YES];
         // Get auth service.
         MobileRTCAuthService *authService = [[MobileRTC sharedRTC] getAuthService];
         if (authService)
