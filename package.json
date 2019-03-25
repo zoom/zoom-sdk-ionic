@@ -1,6 +1,6 @@
 {
   "name": "cordova.plugin.zoom",
-  "version": "0.1.2",
+  "version": "4.3.94401.0322",
   "description": "A Cordova Plugin for Zoom Video Conferencing",
   "cordova": {
     "id": "cordova.plugin.zoom",

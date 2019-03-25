@@ -2,7 +2,7 @@
  *  Zoom.m
  *
  *  @author Carson Chen (carson.chen@zoom.us)
- *  @version v0.0.1-alpha
+ *  @version v4.3.94401.0322
  */
 
 #import "Zoom.h"
