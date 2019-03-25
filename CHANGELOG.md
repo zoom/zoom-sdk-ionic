@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 2019-03-25 @ [v4.3.94401.0325](https://github.com/zoom/zoom-sdk-ionic/releases/tag/v4.3.94401.0325)
+## 2019-03-25 @ [v4.3.1.94401.0325](https://github.com/zoom/zoom-sdk-ionic/releases/tag/v4.3.94401.0325)
 
 **Added**
 
