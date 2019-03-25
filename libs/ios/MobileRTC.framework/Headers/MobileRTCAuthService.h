@@ -127,12 +127,6 @@
 - (nullable NSString*)getEmailAddress;
 
 /*!
- @brief Get the username of a logged in account. [Login User Only]
- @return Username of the logged in account.
- */
-- (nullable NSString*)getUserName;
-
-/*!
  @brief Get PMI Vanity URL from user profile information. 
  @return PMI Vanity URL.
  */

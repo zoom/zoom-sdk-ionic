@@ -48,7 +48,7 @@ import cordova.plugin.zoom.AuthThread;
  * A Cordova Plugin to use Zoom Video Conferencing services on Cordova applications.
  *
  * @author  Carson Chen (carson.chen@zoom.us)
- * @version v4.3.94401.0322
+ * @version v4.3.94401.0325
  */
 public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener, MeetingServiceListener {
     /* Debug variables */

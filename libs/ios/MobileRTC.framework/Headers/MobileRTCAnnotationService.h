@@ -63,29 +63,14 @@ typedef enum {
  @warning User, as the presenter, should stop the current share before starting another share. 
  */
 
-@class MobileRTCAnnotationService;
-/*!
- @class MobileRTCAnnotationServiceDelegate
- @brief the share sender will disable the annotation, this delegate will notify the status change to viewer #only for custom UI#.
- */
-@protocol MobileRTCAnnotationServiceDelegate <NSObject>
-@optional
-- (void)onAnnotationService:(nullable MobileRTCAnnotationService *)service supportStatusChanged:(BOOL)support;
-@end
-
 @interface MobileRTCAnnotationService : NSObject
-
-/*!
- @brief Callback of receiving meeting events.
- */
-@property (nullable, assign, nonatomic) id<MobileRTCAnnotationServiceDelegate> delegate;
 
 /*!
  @brief Set to start annotations on the shared view. 
  @param view The shared view. 
  @return The result of operation.
  */
-- (MobileRTCAnnotationError)startAnnotationWithSharedView:(nullable UIView*)view;
+- (MobileRTCAnnotationError)startAnnotationWithSharedView:(UIView*)view;
 
 /*!
  @brief Set to stop annotations.
@@ -97,13 +82,13 @@ typedef enum {
  @brief Set the colors of annotation tools.
  @return The result of setting the colors.
  */
-- (MobileRTCAnnotationError)setToolColor:(nullable UIColor *)toolColor;
+- (MobileRTCAnnotationError)setToolColor:(UIColor *)toolColor;
 
 /*!
  @brief This method is used to get current Anno Tool Color.
  @return Get Color by tool type.
  */
-- (nullable UIColor *)getToolColor:(MobileRTCAnnoTool)tooltype;
+- (UIColor *)getToolColor:(MobileRTCAnnoTool)tooltype;
 
 /*!
  @brief Set the types of annotation tools.  
@@ -143,36 +128,11 @@ typedef enum {
  @brief Get the supported tool types.
  @return tool type array, each tool is a NSNumber object, value corresponding to enum MobileRTCAnnoTool.
  */
-- (nullable NSArray *)getSupportedToolType;
+- (NSArray *)getSupportedToolType;
 
 /*!
  @brief Check if the current user is the presenter.
  @return Yes if be presenter.
  */
 - (BOOL)isPresenter;
-
-/*!
- @brief Check if support to disable viewer's annotation item.
- @return Yes if support.
- */
-- (BOOL)canDisableViewerAnnoataion;
-
-/*!
- @brief Check currently sender disabled the viewer's annotation or not.
- @return Yes if disabled viewer's annotation.
- */
-- (BOOL)isViewerAnnoataionDisabled;
-
-/*!
- @brief disable viewer's annotation.
- @return MobileRTCAnnotationError_Successed if disabled the viewer's annotation success.
- */
-- (MobileRTCAnnotationError)disableViewerAnnoataion:(BOOL)isDisable;
-
-/*!
- @brief Check can do annotation or not.
- @return Yes if can do the annotation.
- */
-- (BOOL)canDoAnnotation;
-
 @end

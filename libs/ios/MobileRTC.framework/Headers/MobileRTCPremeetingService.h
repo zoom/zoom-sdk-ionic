@@ -120,12 +120,6 @@ typedef enum {
  */
 - (BOOL)listMeeting;
 
-/*!
- @brief return available dial in country object before meeting item create, you can use the ‘allCountries’ for list all the availble country for user select.
- @return available means get success, otherwise will be nil.
- */
-- (nullable MobileRTCDialinCountry *)getAvailableDialInCountry;
-
 @end
 
 /*!
@@ -375,9 +369,7 @@ typedef enum {
 - (BOOL)setAvailableDialinCountry:(nonnull MobileRTCDialinCountry *)dialinCountry;
 
 /*!
- @brief return meeting item's available dial in country object of Meeting item's, for check the schedule's meeting detail info.
-        If you want to list all available country, please use the PreMeeting Service's getAvailableDialInCountry.
-        PreMeeting Service's getAvailableDialInCountry -> hold the object. -> list all country to let user select. -> set the select countries to the object. -> set the object to meeting item.
+ @brief return available dial in country object.
  @return available means get success, otherwise will be nil.
  */
 - (nullable MobileRTCDialinCountry *)getAvailableDialInCountry;
@@ -465,4 +457,5 @@ typedef enum {
  @param array The array of meeting items.
  */
 - (void)sinkListMeeting:(PreMeetingError)result withMeetingItems:(nonnull NSArray*)array;
+
 @end

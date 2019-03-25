@@ -27,7 +27,7 @@ import us.zoom.sdk.ZoomSDKInitializeListener;
  * This thread is required since Zoom SDK needs to run on main thread.
  *
  * @author Carson Chen (carson.chen@zoom.us)
- * @version v4.3.94401.0322
+ * @version v4.3.94401.0325
  *
  */
 public class AuthThread implements Callable<Boolean>, ZoomSDKInitializeListener {
