@@ -7,8 +7,7 @@
 </div>
 
 ## Latest SDK Notifications
-1. **Variable Name Changes**: Since [v4.3.1.94401.0325](https://github.com/zoom/zoom-sdk-ionic/releases/tag/v4.3.1.94401.0325), we have renamed the term "APP" to "SDK" in our demo to avoid confusion between the term "API" and "APP".
-2. Our brand new [Zoom Developer Community Forum](https://devforum.zoom.us/) is now online!!! Check it out! We are here to help! :D
+1. Our brand new [Zoom Developer Community Forum](https://devforum.zoom.us/) is now online!!! Check it out! We are here to help! :D
 
 ## Full Documentation && Community Support
 You can find the full Zoom Ionic SDK documentation and the community support forum here:
