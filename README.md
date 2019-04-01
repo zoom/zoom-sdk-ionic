@@ -50,7 +50,7 @@ Before you try out our SDK, you would need the following to get started:
     * iPhone or iPad
 * **npm@6.4+**
 * **ionic@3**
-* **ionic native@4.17+**
+* **ionic native@5.20+**
 
 ### Installing
 
