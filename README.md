@@ -2,8 +2,26 @@
 
 **Note: This is a community project initiated by Zoom. Zoom does not actively enhance the interfaces in the Ionic plugin. If you would like to contribute, please contact us. Thanks! :)**
 
-> Our brand new [Zoom Developer Community Forum](https://devforum.zoom.us/) is now online!!! Check it out! We are here to help! :D
+<div align="center">
+<img src="https://s3.amazonaws.com/user-content.stoplight.io/8987/1541013063688" width="400px" max-height="400px" style="margin:auto;"/>
+</div>
 
+## Latest SDK Notifications
+1. **Variable Name Changes**: Since [v4.3.1.94401.0325](https://github.com/zoom/zoom-sdk-ionic/releases/tag/v4.3.1.94401.0325), we have renamed the term "APP" to "SDK" in our demo to avoid confusion between the term "API" and "APP".
+2. Our brand new [Zoom Developer Community Forum](https://devforum.zoom.us/) is now online!!! Check it out! We are here to help! :D
+
+## Full Documentation && Community Support
+You can find the full Zoom Ionic SDK documentation and the community support forum here:
+<div align="center">
+   <a target="_blank" href="https://marketplace.zoom.us/docs/sdk/hybrid-frameworks/ionic" style="text-decoration:none">
+   <img src="https://s3-us-west-1.amazonaws.com/sdk.zoom.us/Doc-button.png" width="350px" max-height="350px" style="margin:1vh 1vw;"/>
+   </a>
+   <a target="_blank" href="https://devforum.zoom.us/c/mobile-sdk" style="text-decoration:none">
+   <img src="https://s3-us-west-1.amazonaws.com/sdk.zoom.us/Forum-button.png" width="350px" max-height="350px" style="margin:1vh 1vw;"/>
+   </a>
+</div>
+
+## What is Zoom Ionic SDK?
 Zoom SDK makes it easy to integrate Zoom with your mobile applications, and boosts up your applications with the power of Zoom.
 
 * **Easy to use**: Our SDK is built to be easy to use. Just import the libraries, call a few functions, and we will take care all video conferencing related stuffs for you.
