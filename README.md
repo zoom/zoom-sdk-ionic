@@ -7,7 +7,8 @@
 </div>
 
 ## Latest SDK Notifications
-1. Our brand new [Zoom Developer Community Forum](https://devforum.zoom.us/) is now online!!! Check it out! We are here to help! :D
+1. Please note that our Ionic SDK only support developing and testing on real devices. Using it with emulators will cause errors.
+2. Our brand new [Zoom Developer Community Forum](https://devforum.zoom.us/) is now online!!! Check it out! We are here to help! :D
 
 ## Full Documentation && Community Support
 You can find the full Zoom Ionic SDK documentation and the community support forum here:
