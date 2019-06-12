@@ -1,4 +1,4 @@
-# Zoom Ionic Software Development Kit (SDK)
+# Zoom Ionic Software Development Kit (SDK) <span align="center"><img src="https://s3-us-west-1.amazonaws.com/sdk.zoom.us/Community-Project.png" width="200px" max-height="100px" style="margin:auto;"/></span>
 
 **Note: This is a community project initiated by Zoom. Zoom does not actively enhance the interfaces in the Ionic plugin. If you would like to contribute, please contact us. Thanks! :)**
 
