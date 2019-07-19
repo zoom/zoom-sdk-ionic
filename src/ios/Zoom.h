@@ -2,7 +2,7 @@
  *  Zoom.h
  *
  *  @author Carson Chen (carson.chen@zoom.us)
- *  @version v4.3.94401.0325
+ *  @version v4.4.55130.0712
  */
 
 #import <Cordova/CDV.h>

@@ -2,7 +2,7 @@
  *  Zoom.m
  *
  *  @author Carson Chen (carson.chen@zoom.us)
- *  @version v4.3.94401.0325
+ *  @version v4.4.55130.0712
  */
 
 #import "Zoom.h"
@@ -117,7 +117,6 @@
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\d{8,11}" options:0 error:nil];
 
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        // TODO: Need to check NSNull
         if (meetingNo == nil || ![meetingNo isKindOfClass:[NSString class]] || [meetingNo length] == 0 || [regex numberOfMatchesInString:meetingNo options:0 range:NSMakeRange(0, [meetingNo length])] == 0|| displayName == nil || ![displayName isKindOfClass:[NSString class]] || [displayName length] == 0) {
             NSLog(@"Please enter valid meeting number and display name");
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Please enter valid meeting number and display name"];
@@ -189,9 +188,9 @@
                 NSLog(@"Start meeting without logged in.");
                 NSLog(@"zoom token: %@",zoomToken);
                 NSLog(@"zak: %@",zoomAccessToken);
-                if (zoomToken != nil || ![zoomToken isKindOfClass:[NSString class]] || [zoomToken length] == 0 ||
-                    zoomAccessToken != nil || ![zoomAccessToken isKindOfClass:[NSString class]] || [zoomAccessToken length] == 0 ||
-                    userId != nil || ![userId isKindOfClass:[NSString class]] || [userId length] == 0) {
+                if (zoomToken == nil || ![zoomToken isKindOfClass:[NSString class]] || [zoomToken length] == 0 ||
+                    zoomAccessToken == nil || ![zoomAccessToken isKindOfClass:[NSString class]] || [zoomAccessToken length] == 0 ||
+                    userId == nil || ![userId isKindOfClass:[NSString class]] || [userId length] == 0) {
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Your zoom token, zoom access token, and userId are not valid"];
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
                     return;

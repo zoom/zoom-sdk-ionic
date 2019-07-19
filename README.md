@@ -48,9 +48,22 @@ Before you try out our SDK, you would need the following to get started:
     * Android 4.0 (API Level 14) or later.
   * iOS
     * iPhone or iPad
-* **npm@6.4+**
-* **ionic@3**
-* **ionic native@5.20+**
+    * **npm@6.7.0+**
+    * **ionic-cli@5.2.3+**
+    * **ionic/angular@4.1.0+**
+    * **ionic-native/core@5.8.0+**
+    * **ionic-native/zoom@5.8.0+**
+    
+    If you are developing on Android, you will need to install the latest version of cordova-android
+    ```
+    ionic cordova platform add android@8.0.0+
+    ```
+    
+    and install the following 2 plugins before you can use the Ionic SDK:
+    ```
+    ionic cordova plugin add cordova-plugin-androidx
+    ionic cordova plugin add cordova-plugin-androidx-adapter
+    ```
 
 ### Installing
 
@@ -193,6 +206,19 @@ In order to use the camera and microphone on iOS, please add the following in yo
     <string>Need microphone for video conferencing</string>
 </edit-config>
 ```
+
+## Simulator Support
+By default, this plugin only support running on real devices. Since [4.4.55130.0712](), we have introduced the simulator support. Here are the steps to add simulator support:
+
+1. Install the Zoom Ionic SDK plugin
+```
+ionic cordova plugin add cordova.plugin.zoom
+```
+2. Navigate to `appRoot/plugins/cordova.plugin.zoom`, and back up the whole `libs` folder.
+3. Go to [https://github.com/zoom/zoom-sdk-ionic/tags](https://github.com/zoom/zoom-sdk-ionic/tags) and download the `ionic-zoomsdk-***.zip` file; Unzipp it.
+4. Replace the `libs` folder in `appRoot/plugins/cordova.plugin.zoom` with the one in the `ionic-zoomsdk-***` folder.
+5. Run `ionic cordova platfrom rm android && ionic cordova platform add android` or `ionic cordova platform rm ios && ionic cordova platform add ios` to make sure the new libraries are added to the project.
+6. If you are going to publish your app to the Google Play Store or Apple App Store, please use the original `libs` since a library that contians simulator architecture will not pass the app upload check.
 
 ## Documentation
 

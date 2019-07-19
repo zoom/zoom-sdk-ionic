@@ -1,4 +1,7 @@
 android {
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
+
     packagingOptions {
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
@@ -6,14 +9,19 @@ android {
 }
 repositories {
     jcenter()
+    maven {
+                url 'https://maven.google.com/'
+                name 'Google'
+    }
     flatDir {
         dirs 'libs/android'
     }
 }
 dependencies {
-    compile 'com.android.support:support-v4:27.1.0'
-    compile 'com.android.support:recyclerview-v7:27.1.0'
-    compile(name:'commonlib', ext:'aar')
-    compile(name:'mobilertc', ext:'aar')
+     implementation 'androidx.multidex:multidex:2.0.0'
+     implementation 'androidx.recyclerview:recyclerview:1.0.0'
+     implementation 'androidx.appcompat:appcompat:1.0.0'
+     implementation(name:'commonlib', ext:'aar')
+     implementation(name:'mobilertc', ext:'aar')
 }
 

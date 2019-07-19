@@ -98,6 +98,13 @@
 - (BOOL)isPlayChimeOn;
 
 /*!
+ @brief Set whether chime are enabled when the user joins/leaves meeting.
+ @return YES means enabled, otherwise not.
+ @warning Only meeting host/cohost can run the function when in meeting.
+ */
+- (BOOL)playChime:(BOOL)on;
+
+/*!
  @brief Set to mute the audio of the current user.
  @param mute YES means the audio is muted, otherwise not.
  @return The result of operation, muted or not.
@@ -113,5 +120,10 @@
  @brief Reset Meeting Audio Session including Category and Mode.
  */
 - (void)resetMeetingAudioSession;
+
+/*!
+ @brief Reset Meeting Audio Session including Category and Mode. When the call comes in or goes out, click hold or swap in the dial-up UI to restore the zoom sound.
+ */
+- (void)resetMeetingAudioForCallKitHeld;
 
 @end

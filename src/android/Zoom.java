@@ -48,7 +48,7 @@ import cordova.plugin.zoom.AuthThread;
  * A Cordova Plugin to use Zoom Video Conferencing services on Cordova applications.
  *
  * @author  Carson Chen (carson.chen@zoom.us)
- * @version v4.3.94401.0325
+ * @version v4.4.55130.0712
  */
 public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener, MeetingServiceListener {
     /* Debug variables */
@@ -147,9 +147,7 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
     private void initialize(String appKey, String appSecret, CallbackContext callbackContext) {
         if (DEBUG) {
             Log.v(TAG, "********** Zoom's initialize called **********");
-            Log.v(TAG, "appKey = " + appKey);
             Log.v(TAG, "appKey length = " + appKey.length());
-            Log.v(TAG, "appSecret = " + appSecret);
             Log.v(TAG, "appSecret length= " + appSecret.length());
         }
 
@@ -582,8 +580,6 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
             // if user is not logged in, start the meeting with provided tokens.
             if (DEBUG) {
                 Log.v(TAG, "[+++++++++++++++Going to start meeting with ZAK++++++++++++++++]");
-                Log.v(TAG, "[zoomToken===" + zoomToken);
-                Log.v(TAG, "[zoomAccessToken==="+zoomAccessToken);
                 Log.v(TAG, "[userId==="+userId);
             }
             if (zoomToken.length() != 0 && zoomAccessToken.length() != 0 && userId.length() != 0) {

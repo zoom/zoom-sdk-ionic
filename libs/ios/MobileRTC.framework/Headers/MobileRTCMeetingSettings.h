@@ -60,7 +60,7 @@
 @property (assign, nonatomic) BOOL meetingMoreHidden;
 
 /*!
- @brief Show/Hide the BAR ON THE TOP of view in the meeting. 
+ @brief Show/Hide the BAR ON THE TOP of view in the meeting.
  */
 @property (assign, nonatomic) BOOL topBarHidden;
 
@@ -96,6 +96,11 @@
  @brief Show/Hide the waiting HUD while starting/joining a meeting.
  */
 @property (assign, nonatomic) BOOL waitingHUDHidden;
+
+/*!
+ @brief Show/Hide "Call in Room System" item in Invite h.323/SIP Room System.
+ */
+@property (assign, nonatomic) BOOL callinRoomSystemHidden;
 
 /*!
  @brief Show/Hide "Call out Room System" item in Invite h.323/SIP Room System.
@@ -158,6 +163,18 @@
 - (void)setMuteVideoWhenJoinMeeting:(BOOL)muted;
 
 /*!
+ @brief Query Touch up my appearance enable or not
+ @param muted YES means enable, otherwise not.
+ */
+- (BOOL)faceBeautyEnabled;
+
+/*!
+ @brief Set Touch up my appearance enable or not
+ @param muted YES means successful, otherwise not.
+ */
+- (void)setFaceBeautyEnabled:(BOOL)enable;
+
+/*!
  @brief Query if driving mode is disabled.
  @return YES means muted, otherwise not.
  */
@@ -192,4 +209,16 @@
  @param disabled The option value.
  */
 - (void)disableCallOut:(BOOL)disabled;
+
+/*!
+ @brief Query if it is disabled to Minimize Meeting.
+ @return YES means disabled, otherwise not.
+ */
+- (BOOL)minimizeMeetingDisabled;
+
+/*!
+ @brief Set to disable the Minimize Meeting.
+ @param disabled The option value.
+ */
+- (void)disableMinimizeMeeting:(BOOL)disabled;
 @end

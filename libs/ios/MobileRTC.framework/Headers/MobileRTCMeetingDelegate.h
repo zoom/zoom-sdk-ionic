@@ -133,9 +133,16 @@ typedef void (^RTCJoinMeetingActionBlock)(NSString *, NSString *, BOOL);
  @brief Customize the invitation event.
  @param parentVC Parent viewcontroller to present custom Invite UI. 
  @param array Add custom InviteActionItem to Invite ActionSheet.
- @return Input NO if user wants to custom the invite items, add items to Invite ActionSheet via MobileRTCMeetingInviteActionItem. Otherwise YES, user will use the default UI.
+ @return NO if user wants to custom the invite items, add items to Invite ActionSheet via MobileRTCMeetingInviteActionItem. Otherwise YES, user will use the default UI.
  */
 - (BOOL)onClickedInviteButton:(UIViewController*)parentVC addInviteActionItem:(NSMutableArray *)array;
+
+/*!
+ @brief Customize the audio button clicked event.
+ @param parentVC Parent viewcontroller to present custom Invite UI.
+ @return YES if user wants to custom the audio button clicked event, Otherwise NO, will use the default method.
+ */
+- (BOOL)onClickedAudioButton:(UIViewController*)parentVC;
 
 /*!
  @brief Custom the UI of Participants management.
@@ -148,6 +155,12 @@ typedef void (^RTCJoinMeetingActionBlock)(NSString *, NSString *, BOOL);
  @return NO if user wants to custom Share Action Item, add items to Share ActionSheet via MobileRTCMeetingShareActionItem. Otherwise YES, user will use the default UI.
  */
 - (BOOL)onClickedShareButton:(UIViewController*)parentVC addShareActionItem:(NSMutableArray *)array;
+
+/*!
+ @brief Custom the UI of Leave Meeting Alert.
+ @param parentVC Parent viewcontroller to present custom Participants UI.
+ */
+- (BOOL)onClickedEndButton:(UIViewController*)parentVC endButton:(UIButton *)endButton;
 
 /*!
  @brief Notify users that there is no sharing for the moment.

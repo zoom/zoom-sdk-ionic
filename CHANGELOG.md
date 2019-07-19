@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2019-07-15 @ [v4.4.55130.0712](https://github.com/zoom/zoom-sdk-ionic/releases/tag/4.4.55130.0712)
+
+**Added**
+
+* Added Simulators Support on Android & iOS
+* Added Ionic 4 Support
+* Added Android 64-bit Support
+* Added AndroidX Support
+
+**Changed & Fixed**
+* Fixed an issue that sometimes the user is not able to start a meeting with ZAK
+
 ## 2019-03-25 @ [v4.3.1.94401.0325](https://github.com/zoom/zoom-sdk-ionic/releases/tag/v4.3.1.94401.0325)
 
 **Added**
