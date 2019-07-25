@@ -54,16 +54,18 @@ Before you try out our SDK, you would need the following to get started:
     * **ionic-native/core@5.8.0+**
     * **ionic-native/zoom@5.8.0+**
     
-    If you are developing on Android, you will need to install the latest version of cordova-android
-    ```
-    ionic cordova platform add android@8.0.0+
-    ```
-    
-    and install the following 2 plugins before you can use the Ionic SDK:
-    ```
-    ionic cordova plugin add cordova-plugin-androidx
-    ionic cordova plugin add cordova-plugin-androidx-adapter
-    ```
+
+  
+ If you are developing on Android, you will need to install the latest version of cordova-android
+ ```
+ ionic cordova platform add android@8.0.0+
+ ```
+
+ and install the following 2 plugins before you can use the Ionic SDK:
+ ```
+ ionic cordova plugin add cordova-plugin-androidx
+ ionic cordova plugin add cordova-plugin-androidx-adapter
+ ```
 
 ### Installing
 
