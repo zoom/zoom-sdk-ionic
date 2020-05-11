@@ -88,7 +88,9 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
             case "initialize":
                 String appKey = args.getString(0);
                 String appSecret = args.getString(1);
-                this.initialize(appKey, appSecret, callbackContext);
+                 if (!this.mZoomSDK.isInitialized()) {
+                    this.initialize(appKey, appSecret, callbackContext);
+                }
                 break;
             case "login":
                 String username = args.getString(0);
