@@ -121,15 +121,11 @@ typedef enum {
 /*!
  @brief The screen name of user.
  */
-@property (nonatomic, retain) NSString*        userName;
-/*!
- @brief The email address to sing in.
- */
-@property (nonatomic, retain) NSString*        emailAddress;
+@property (nonatomic, retain) NSString* _Nonnull        userName;
 /*!
  @brief The path to store the head portrait.
  */
-@property (nonatomic, retain) NSString*        avatarPath;
+@property (nonatomic, retain) NSString* _Nonnull       avatarPath;
 /*!
  @brief Unread messages in the meeting.
  */
@@ -137,11 +133,11 @@ typedef enum {
 /*!
  @brief User's video status in the meeting.
  */
-@property (nonatomic, retain) MobileRTCVideoStatus*  videoStatus;
+@property (nonatomic, retain) MobileRTCVideoStatus* _Nonnull videoStatus;
 /*!
  @brief User's audio status in the meeting.
  */
-@property (nonatomic, retain) MobileRTCAudioStatus*  audioStatus;
+@property (nonatomic, retain) MobileRTCAudioStatus* _Nonnull audioStatus;
 /*!
  @brief The user raised his hand.
  */
@@ -184,16 +180,10 @@ typedef enum {
 /*!
  @brief The ID of user.
  */
-@property (nonatomic, assign, readonly) NSUInteger userID;
+@property (nonatomic, assign) NSUInteger userID;
 /*!
  @brief The screen name of user.
  */
-@property (nonatomic, retain, readonly) NSString *userName;
-/*!
- @brief The email address to sing in webinar.
- */
-@property (nonatomic, retain, readonly) NSString *emailAddress;
-
-- (id)initWithUserID:(NSUInteger)userID username:(NSString *)userName emailAddress:(NSString*)emailAddress;
+@property (nonatomic, retain) NSString * _Nullable userName;
 
 @end

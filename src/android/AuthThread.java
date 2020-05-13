@@ -17,6 +17,7 @@ import us.zoom.sdk.ZoomApiError;
 import us.zoom.sdk.ZoomAuthenticationError;
 import us.zoom.sdk.ZoomError;
 import us.zoom.sdk.ZoomSDK;
+import us.zoom.sdk.ZoomSDKInitParams;
 import us.zoom.sdk.ZoomSDKAuthenticationListener;
 import us.zoom.sdk.ZoomSDKInitializeListener;
 
@@ -26,8 +27,8 @@ import us.zoom.sdk.ZoomSDKInitializeListener;
  * A custom thread to run Zoom SDK from Cordova Plugin and perform authorization and authentication.
  * This thread is required since Zoom SDK needs to run on main thread.
  *
- * @author Carson Chen (carson.chen@zoom.us)
- * @version v4.4.55130.0712
+ * @author Zoom Video Communications, Inc.
+ * @version v4.6.21666.0512
  *
  */
 public class AuthThread implements Callable<Boolean>, ZoomSDKInitializeListener {
@@ -43,9 +44,14 @@ public class AuthThread implements Callable<Boolean>, ZoomSDKInitializeListener 
 
     /* Zoom SDK auth variables */
     private ZoomSDK mZoomSDK;
+    private ZoomSDKInitParams initParams;
     private String appKey = "";
     private String appSecret = "";
     private String webDomain = "";
+
+    public AuthThread() {
+        this.initParams = new ZoomSDKInitParams();
+    }
 
     /**
      * setCallbackContext
@@ -101,9 +107,10 @@ public class AuthThread implements Callable<Boolean>, ZoomSDKInitializeListener 
      */
     public void setInitParameters(String appKey, String appSecret, String webDomain) {
         if (DEBUG) { Log.v(TAG, "Init parameter set"); }
-        this.appKey     = appKey;
-        this.appSecret  = appSecret;
-        this.webDomain  = webDomain;
+        this.initParams.appKey = appKey;
+        this.initParams.appSecret = appSecret;
+        this.initParams.domain = webDomain;
+        this.initParams.enableLog = true;
     }
 
     /**
@@ -123,12 +130,9 @@ public class AuthThread implements Callable<Boolean>, ZoomSDKInitializeListener 
         switch (action) {
             case "initialize":
                 this.mZoomSDK.initialize(
-                        cordova.getActivity().getApplicationContext(),  // application context
-                        this.appKey,                                    // application key
-                        this.appSecret,                                 // application secret
-                        this.webDomain,                                 // application web domain
-                        this,                                            // auth listener
-                        true                                            // enable log
+                    cordova.getActivity().getApplicationContext(),  // application context
+                    this,                                           // auth listener
+                    initParams
                 );
                 break;
             default:
@@ -188,6 +192,16 @@ public class AuthThread implements Callable<Boolean>, ZoomSDKInitializeListener 
                 LOCK.notify();
             }
         }
+    }
+
+    /**
+     * onZoomAuthIdentityExpired
+     * 
+     * A listener to get notified when the authentication identity has expired.
+     */
+    @Override
+    public void onZoomAuthIdentityExpired() {
+        Log.v(TAG, "onZoomAuthIdentityExpired is triggered");
     }
 
     /**
@@ -261,7 +275,7 @@ public class AuthThread implements Callable<Boolean>, ZoomSDKInitializeListener 
                 message.append("The combination of your username and password does not match our record.");
                 break;
             case ZoomApiError.ZOOM_API_INVALID_STATUS:
-                message.append("Our API is taking a break. Please try again later.");
+                message.append("Invalid Status. Please try again later.");
                 break;
             default:
                 message.append("You are already logged in.");

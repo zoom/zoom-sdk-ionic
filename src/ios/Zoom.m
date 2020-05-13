@@ -1,14 +1,14 @@
 /**
  *  Zoom.m
  *
- *  @author Carson Chen (carson.chen@zoom.us)
- *  @version v4.4.55130.0712
+ *  @author Zoom Video Communications, Inc.
+ *  @version v4.6.21666.0512
  */
 
 #import "Zoom.h"
 
-#define kSDKDomain  @"zoom.us"
-#define DEBUG   YES
+#define kSDKDomain  @"https://zoom.us"
+#define DEBUG   NO
 
 @implementation Zoom
 
@@ -29,7 +29,20 @@
             return;
         }
 
-        [MobileRTC initializeWithDomain:kSDKDomain enableLog:YES];
+        // Initialize SDK.
+        MobileRTCSDKInitContext *context = [[MobileRTCSDKInitContext alloc] init];
+        context.domain = kSDKDomain;
+        context.enableLog = YES;
+        context.locale = MobileRTC_ZoomLocale_Default;
+
+        BOOL initRet = [[MobileRTC sharedRTC] initialize:context];
+
+        // If the SDK has successfully authorized, avoid re-authorization.
+        if ([[MobileRTC sharedRTC] isRTCAuthorized])
+        {
+            return;
+        }
+
         // Get auth service.
         MobileRTCAuthService *authService = [[MobileRTC sharedRTC] getAuthService];
         if (authService)
@@ -56,7 +69,7 @@
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         if (username != nil && [username isKindOfClass:[NSString class]] && [username length] > 0 && password != nil && [password isKindOfClass:[NSString class]]  && [password length]) {
             // Try to log user in
-            [[[MobileRTC sharedRTC] getAuthService] loginWithEmail:username password:password remeberMe:YES];
+            [[[MobileRTC sharedRTC] getAuthService] loginWithEmail:username password:password rememberMe:YES];
         } else {
             NSMutableDictionary *res = [[NSMutableDictionary alloc] init];
             res[@"result"] = @NO;
@@ -108,10 +121,12 @@
     NSString* meetingNo = [command.arguments objectAtIndex:0];
     NSString* meetingPassword = [command.arguments objectAtIndex:1];
     NSString* displayName = [command.arguments objectAtIndex:2];
+    NSDictionary* options = [command.arguments objectAtIndex:3];
 
     if (DEBUG) {
         NSLog(@"========meeting number======= %@", meetingNo);
         NSLog(@"========display name======= %@", displayName);
+        NSLog(@"========meeting options===== %@", options);
     }
     // Meeting number regular expression.
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\d{8,11}" options:0 error:nil];
@@ -129,11 +144,129 @@
         {
             // Assign delegate.
             ms.delegate = self;
+            // Meeting options
+            // custom_meeting_id
+            if ([options objectForKey:@"custom_meeting_id"] != [NSNull null]) {
+                NSString* customMeetingId = options[@"custom_meeting_id"];
+                [ms customizeMeetingTitle:customMeetingId];
+            }
+            // no_audio
+            if ([options objectForKey:@"no_audio"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteAudioWhenJoinMeeting:[options[@"no_audio"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteAudioWhenJoinMeeting:NO];
+            }
+            // no_bottom_toolbar
+            if ([options objectForKey:@"no_bottom_toolbar"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].bottomBarHidden = [options[@"no_bottom_toolbar"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].bottomBarHidden = NO;
+            }
+            // no_dial_in_via_phone
+            if ([options objectForKey:@"no_dial_in_via_phone"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallIn: [options[@"no_dial_in_via_phone"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallIn: NO];
+            }
+            // no_dial_out_to_phone
+            if ([options objectForKey:@"no_dial_out_to_phone"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallOut: [options[@"no_dial_out_to_phone"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallOut:NO];
+            }
+            // no_disconnect_audio
+            if ([options objectForKey:@"no_disconnect_audio"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings ].disconnectAudioHidden = [options[@"no_disconnect_audio"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings ].disconnectAudioHidden = NO;
+            }
+            
+            // no_driving_mode
+            if ([options objectForKey:@"no_driving_mode"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableDriveMode: [options[@"no_driving_mode"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableDriveMode:NO];
+            }
+            // no_invite
+            if ([options objectForKey:@"no_invite"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingInviteHidden = [options[@"no_invite"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingInviteHidden = NO;
+            }
+            
+            // no_titlebar
+            if ([options objectForKey:@"no_titlebar"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].topBarHidden = [options[@"no_titlebar"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].topBarHidden = NO;
+            }
+            
+            // no_video
+            if ([options objectForKey:@"no_video"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteVideoWhenJoinMeeting:[options[@"no_video"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteVideoWhenJoinMeeting:NO];
+            }
+            
+            // no_button_video
+            if ([options objectForKey:@"no_button_video"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingVideoHidden = [options[@"no_button_video"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingVideoHidden = NO;
+            }
+            // no_button_audio
+            if ([options objectForKey:@"no_button_audio"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingAudioHidden = [options[@"no_button_audio"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingAudioHidden = NO;
+            }
+            // no_button_share
+            if ([options objectForKey:@"no_button_share"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingShareHidden = [options[@"no_button_share"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingShareHidden = NO;
+            }
+            // no_button_participants
+            if ([options objectForKey:@"no_button_participants"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingParticipantHidden = [options[@"no_button_participants"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingParticipantHidden = NO;
+            }
+            // no_button_more
+            if ([options objectForKey:@"no_button_more"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingMoreHidden = [options[@"no_button_more"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingMoreHidden = NO;
+            }
+            // no_text_meeting_id
+            if ([options objectForKey:@"no_text_meeting_id"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingTitleHidden = [options[@"no_text_meeting_id"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingTitleHidden = NO;
+            }
+            // no_text_password
+            if ([options objectForKey:@"no_text_password"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingPasswordHidden = [options[@"no_text_password"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingPasswordHidden = NO;
+            }
+            // no_button_leave
+            if ([options objectForKey:@"no_button_leave"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingLeaveHidden = [options[@"no_button_leave"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingLeaveHidden = NO;
+            }
+            NSString* participantID = @"";
+            // participant_id
+            if ([options objectForKey:@"participant_id"] != [NSNull null]) {
+                participantID = options[@"participant_id"];
+            }
             // Prepare meeting parameters.
             NSDictionary *paramDict = @{
                                         kMeetingParam_Username:displayName,
                                         kMeetingParam_MeetingNumber:meetingNo,
-                                        kMeetingParam_MeetingPassword:meetingPassword
+                                        kMeetingParam_MeetingPassword:meetingPassword,
+                                        kMeetingParam_ParticipantID: participantID
                                         };
             // Join meeting.
             MobileRTCMeetError response = [ms joinMeetingWithDictionary:paramDict];
@@ -154,6 +287,7 @@
     NSString* zoomToken = [command.arguments objectAtIndex:2];
     NSString* zoomAccessToken = [command.arguments objectAtIndex:3];
     NSString* userId = [command.arguments objectAtIndex:4];
+    NSDictionary* options = [command.arguments objectAtIndex:5];
 
     dispatch_async(dispatch_get_main_queue(), ^(void) {
 
@@ -170,6 +304,114 @@
         {
             // Assign delegate.
             ms.delegate = self;
+            // Meeting options
+            // custom_meeting_id
+            if ([options objectForKey:@"custom_meeting_id"] != [NSNull null]) {
+                NSString* customMeetingId = options[@"custom_meeting_id"];
+                [ms customizeMeetingTitle:customMeetingId];
+            }
+            // no_bottom_toolbar
+            if ([options objectForKey:@"no_bottom_toolbar"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].bottomBarHidden = [options[@"no_bottom_toolbar"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].bottomBarHidden = NO;
+            }
+            // no_dial_in_via_phone
+            if ([options objectForKey:@"no_dial_in_via_phone"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallIn: [options[@"no_dial_in_via_phone"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallIn: NO];
+            }
+            // no_dial_out_to_phone
+            if ([options objectForKey:@"no_dial_out_to_phone"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallOut: [options[@"no_dial_out_to_phone"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallOut:NO];
+            }
+            // no_disconnect_audio
+            if ([options objectForKey:@"no_disconnect_audio"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings ].disconnectAudioHidden = [options[@"no_disconnect_audio"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings ].disconnectAudioHidden = NO;
+            }
+            // no_driving_mode
+            if ([options objectForKey:@"no_driving_mode"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableDriveMode: [options[@"no_driving_mode"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableDriveMode:NO];
+            }
+            // no_invite
+            if ([options objectForKey:@"no_invite"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingInviteHidden = [options[@"no_invite"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingInviteHidden = NO;
+            }
+            // no_titlebar
+            if ([options objectForKey:@"no_titlebar"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].topBarHidden = [options[@"no_titlebar"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].topBarHidden = NO;
+            }
+            // no_audio
+            if ([options objectForKey:@"no_audio"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteAudioWhenJoinMeeting:[options[@"no_audio"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteAudioWhenJoinMeeting:NO];
+            }
+            // no_video
+            if ([options objectForKey:@"no_video"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteVideoWhenJoinMeeting:[options[@"no_video"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteVideoWhenJoinMeeting:NO];
+            }
+            // no_button_video
+            if ([options objectForKey:@"no_button_video"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingVideoHidden = [options[@"no_button_video"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingVideoHidden = NO;
+            }
+            // no_button_audio
+            if ([options objectForKey:@"no_button_audio"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingAudioHidden = [options[@"no_button_audio"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingAudioHidden = NO;
+            }
+            // no_button_share
+            if ([options objectForKey:@"no_button_share"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingShareHidden = [options[@"no_button_share"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingShareHidden = NO;
+            }
+            // no_button_participants
+            if ([options objectForKey:@"no_button_participants"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingParticipantHidden = [options[@"no_button_participants"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingParticipantHidden = NO;
+            }
+            // no_button_more
+            if ([options objectForKey:@"no_button_more"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingMoreHidden = [options[@"no_button_more"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingMoreHidden = NO;
+            }
+            // no_text_meeting_id
+            if ([options objectForKey:@"no_text_meeting_id"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingTitleHidden = [options[@"no_text_meeting_id"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingTitleHidden = NO;
+            }
+            // no_text_password
+            if ([options objectForKey:@"no_text_password"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingPasswordHidden = [options[@"no_text_password"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingPasswordHidden = NO;
+            }
+            // no_button_leave
+            if ([options objectForKey:@"no_button_leave"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingLeaveHidden = [options[@"no_button_leave"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingLeaveHidden = NO;
+            }
             // Prepare start meeting param.
             MobileRTCMeetingStartParam * param = nil;
 
@@ -206,6 +448,10 @@
                 user.zak = zoomAccessToken;
                 param = user;
             }
+            // participant_id
+            if ([options objectForKey:@"participant_id"] != [NSNull null]) {
+                param.participantID = options[@"participant_id"];
+            }
             // Start meeting.
             MobileRTCMeetError response = [ms startMeetingWithStartParam:param];
             if (DEBUG) {
@@ -219,6 +465,7 @@
 {
     pluginResult = nil;
     callbackId = command.callbackId;
+    NSDictionary* options = [command.arguments objectAtIndex:0];
 
     dispatch_async(dispatch_get_main_queue(), ^(void) {
 
@@ -234,6 +481,118 @@
         {
             // Assign delegate.
             ms.delegate = self;
+            // Meeting options
+            // custom_meeting_id
+            if ([options objectForKey:@"custom_meeting_id"] != [NSNull null]) {
+                NSString* customMeetingId = options[@"custom_meeting_id"];
+                [ms customizeMeetingTitle:customMeetingId];
+            }
+            // no_audio
+            if ([options objectForKey:@"no_audio"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteAudioWhenJoinMeeting:[options[@"no_audio"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteAudioWhenJoinMeeting:NO];
+            }
+            // no_bottom_toolbar
+            if ([options objectForKey:@"no_bottom_toolbar"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].bottomBarHidden = [options[@"no_bottom_toolbar"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].bottomBarHidden = NO;
+            }
+            // no_dial_in_via_phone
+            if ([options objectForKey:@"no_dial_in_via_phone"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallIn: [options[@"no_dial_in_via_phone"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallIn: NO];
+            }
+            // no_dial_out_to_phone
+            if ([options objectForKey:@"no_dial_out_to_phone"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallOut: [options[@"no_dial_out_to_phone"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableCallOut:NO];
+            }
+            // no_disconnect_audio
+            if ([options objectForKey:@"no_disconnect_audio"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings ].disconnectAudioHidden = [options[@"no_disconnect_audio"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings ].disconnectAudioHidden = NO;
+            }
+            
+            // no_driving_mode
+            if ([options objectForKey:@"no_driving_mode"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableDriveMode: [options[@"no_driving_mode"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] disableDriveMode:NO];
+            }
+            // no_invite
+            if ([options objectForKey:@"no_invite"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingInviteHidden = [options[@"no_invite"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingInviteHidden = NO;
+            }
+            
+            // no_titlebar
+            if ([options objectForKey:@"no_titlebar"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].topBarHidden = [options[@"no_titlebar"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].topBarHidden = NO;
+            }
+            
+            // no_video
+            if ([options objectForKey:@"no_video"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteVideoWhenJoinMeeting:[options[@"no_video"] boolValue]];
+            } else {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setMuteVideoWhenJoinMeeting:NO];
+            }
+            
+            // no_button_video
+            if ([options objectForKey:@"no_button_video"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingVideoHidden = [options[@"no_button_video"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingVideoHidden = NO;
+            }
+            // no_button_audio
+            if ([options objectForKey:@"no_button_audio"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingAudioHidden = [options[@"no_button_audio"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingAudioHidden = NO;
+            }
+            // no_button_share
+            if ([options objectForKey:@"no_button_share"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingShareHidden = [options[@"no_button_share"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingShareHidden = NO;
+            }
+            // no_button_participants
+            if ([options objectForKey:@"no_button_participants"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingParticipantHidden = [options[@"no_button_participants"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingParticipantHidden = NO;
+            }
+            // no_button_more
+            if ([options objectForKey:@"no_button_more"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingMoreHidden = [options[@"no_button_more"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingMoreHidden = NO;
+            }
+            // no_text_meeting_id
+            if ([options objectForKey:@"no_text_meeting_id"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingTitleHidden = [options[@"no_text_meeting_id"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingTitleHidden = NO;
+            }
+            // no_text_password
+            if ([options objectForKey:@"no_text_password"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingPasswordHidden = [options[@"no_text_password"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingPasswordHidden = NO;
+            }
+            // no_button_leave
+            if ([options objectForKey:@"no_button_leave"] != [NSNull null]) {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingLeaveHidden = [options[@"no_button_leave"] boolValue];
+            } else {
+                [[MobileRTC sharedRTC] getMeetingSettings].meetingLeaveHidden = NO;
+            }
             // Prepare start meeting parameters.
             NSDictionary* paramDict = nil;
             paramDict = @{};

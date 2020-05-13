@@ -20,7 +20,7 @@
 @property (assign, nonatomic) BOOL meetingTitleHidden;
 
 /*!
- @brief Show/Hide meeting title in the meeting bar. 
+ @brief Show/Hide meeting title in the meeting bar.
  */
 @property (assign, nonatomic) BOOL meetingPasswordHidden;
 
@@ -43,6 +43,11 @@
  @brief Show/Hide INVITE button in the meeting bar.
  */
 @property (assign, nonatomic) BOOL meetingInviteHidden;
+
+/*!
+ @brief Show/Hide Chat in the meeting bar.
+ */
+@property (assign, nonatomic) BOOL meetingChatHidden;
 
 /*!
  @brief Show/Hide PARTICIPANT button in the meeting bar.
@@ -69,6 +74,11 @@
  @warning The BAR at the bottom of the view is available on iPhone.
  */
 @property (assign, nonatomic) BOOL bottomBarHidden;
+
+/*!
+ @brief Show/Hide disconnect audio button
+ */
+@property (assign, nonatomic) BOOL disconnectAudioHidden;
 
 /*!
  @brief Enable/Disable Kubi Device in the meeting.
@@ -116,6 +126,11 @@
  @brief Show/Hide CLOSE CAPTION in a meeting.
  */
 @property (assign, nonatomic) BOOL closeCaptionHidden;
+
+/*!
+ @brief Show/Hide Q&A button in webinar meeting.
+ */
+@property (assign, nonatomic) BOOL qaButtonHidden;
 
 /*!
  @brief Enable/Disable Proximity Sensors Monitoring in a meeting. 
@@ -187,6 +202,18 @@
 - (void)disableDriveMode:(BOOL)disabled;
 
 /*!
+ @brief Query if Gallery View is disabled.
+ @return YES means muted, otherwise not.
+ */
+- (BOOL)galleryViewDisabled;
+
+/*!
+ @brief Set to disable the Gallery View in the meeting.
+ @param disabled YES means disabled, otherwise not.
+ */
+- (void)disableGalleryView:(BOOL)disabled;
+
+/*!
  @brief Query if it is disabled to call in.
  @return YES means disabled, otherwise not.
  */
@@ -221,4 +248,41 @@
  @param disabled The option value.
  */
 - (void)disableMinimizeMeeting:(BOOL)disabled;
+
+/*!
+ @brief Query Meeting setting of speaker off when present meeting.
+ @return YES means speaker off, otherwise not.
+ */
+- (BOOL)speakerOffWhenInMeeting;
+
+/*!
+ @brief Set speaker off.  Default value is No, Need set to NO when not used.
+ @param YES means speaker off, otherwise not
+ */
+- (void)setSpeakerOffWhenInMeeting:(BOOL)speakerOff;
+
+/*!
+ @brief Query show meeting elapse time.
+ @return YES means show meeting elapse time, otherwise not.
+ */
+- (BOOL)showMyMeetingElapseTime;
+
+/*!
+ @brief Enable show meeting elapse time.
+ @param enable YES means show meeting elapse time, otherwise not.
+ */
+- (void)enableShowMyMeetingElapseTime:(BOOL)enable;
+
+/*!
+@brief Set the visibility of reaction on meeting UI. Default is displaying.
+@param hidden YES means hide reaction emotion.
+*/
+- (void)hideReactionsOnMeetingUI:(BOOL)hidden;
+
+/*!
+@brief pre populate webinar registration info.
+@param email registration email address.
+@param username registration username.
+*/
+- (void)prePopulateWebinarRegistrationInfo:(nonnull NSString *)email username:(nonnull NSString *)username;
 @end

@@ -14,7 +14,7 @@ var zoom = {
     initialize: function(appKey, appSecret, success, error) {
         callNativeFunction('initialize', [appKey, appSecret], success, error);
     },
-
+    
     login: function(username, password, success, error) {
         callNativeFunction('login', [username, password], success, error);
     },

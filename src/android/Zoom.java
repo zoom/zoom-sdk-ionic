@@ -39,6 +39,7 @@ import us.zoom.sdk.StartMeetingParams4NormalUser;
 import us.zoom.sdk.StartMeetingParamsWithoutLogin;
 import us.zoom.sdk.JoinMeetingParams;
 import us.zoom.sdk.JoinMeetingOptions;
+import us.zoom.sdk.MeetingViewsOptions;
 
 import cordova.plugin.zoom.AuthThread;
 
@@ -47,16 +48,16 @@ import cordova.plugin.zoom.AuthThread;
  *
  * A Cordova Plugin to use Zoom Video Conferencing services on Cordova applications.
  *
- * @author  Carson Chen (carson.chen@zoom.us)
- * @version v4.4.55130.0712
+ * @author  Zoom Video Communications, Inc.
+ * @version v4.6.21666.0512
  */
 public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener, MeetingServiceListener {
     /* Debug variables */
-    private static final String TAG = "<------- ZoomCordovaPlugin ---------->";
+    private static final String TAG = "<------- ZoomIonicAngularPlugin ---------->";
     private static final boolean DEBUG = false;
     public static final Object LOCK = new Object();
 
-    private String WEB_DOMAIN = "zoom.us";
+    private String WEB_DOMAIN = "https://zoom.us";
 
     private ZoomSDK mZoomSDK;
     private CallbackContext callbackContext;
@@ -67,7 +68,7 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
      * The bridging method to get parameters from JavaScript to execute the relevant Java methods.
      *
      * @param action            action name.
-     * @param args              arguements.
+     * @param args              arguments.
      * @param callbackContext   callback context.
      * @return                  true if everything runs smooth / false if something is wrong.
      * @throws JSONException    might throw exceptions when parsing JSON arrays and objects.
@@ -147,8 +148,11 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
     private void initialize(String appKey, String appSecret, CallbackContext callbackContext) {
         if (DEBUG) {
             Log.v(TAG, "********** Zoom's initialize called **********");
-            Log.v(TAG, "appKey length = " + appKey.length());
-            Log.v(TAG, "appSecret length= " + appSecret.length());
+        }
+
+        // If the SDK has been successfully initialized, simply return.
+        if (mZoomSDK.isInitialized()) {
+            return;
         }
 
         // Note: When "null" is pass from JS to Android, it is transferred as a word "null".
@@ -157,6 +161,7 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
             callbackContext.error("Both SDK key and secret cannot be empty");
             return;
         }
+
 
         try {
             AuthThread at = new AuthThread();                           // Prepare Auth Thread
@@ -393,9 +398,13 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
         }
 
         if (option != null) {
-            // If meeting option is provoded, setup meeting options and join meeting.
+            // If meeting option is provided, setup meeting options and join meeting.
             JoinMeetingOptions opts = new JoinMeetingOptions();
             try {
+                opts.custom_meeting_id = option.isNull("custom_meeting_id")? null : option.getString("custom_meeting_id");
+                opts.participant_id = option.isNull("participant_id")? null : option.getString("participant_id");
+                opts.no_unmute_confirm_dialog = option.isNull("no_unmute_confirm_dialog")? false : option.getBoolean("no_unmute_confirm_dialog");
+                opts.no_webinar_register_dialog = option.isNull("no_webinar_register_dialog")? false : option.getBoolean("no_webinar_register_dialog");
                 opts.no_driving_mode = option.isNull("no_driving_mode")? false : option.getBoolean("no_driving_mode");
                 opts.no_invite = option.isNull("no_invite")? false : option.getBoolean("no_invite");
                 opts.no_meeting_end_message = option.isNull("no_meeting_end_message")? false : option.getBoolean("no_meeting_end_message");
@@ -408,6 +417,48 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
                 opts.no_audio = option.isNull("no_audio")? false : option.getBoolean("no_audio");
                 opts.no_video = option.isNull("no_video")? false : option.getBoolean("no_video");
                 opts.no_meeting_error_message = option.isNull("no_meeting_error_message")? false : option.getBoolean("no_meeting_error_message");
+                opts.meeting_views_options = 0;
+
+                if (!option.isNull("no_button_video") && option.getBoolean("no_button_video")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_VIDEO;
+                }
+
+                if (!option.isNull("no_button_audio") && option.getBoolean("no_button_audio")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_AUDIO;
+                }
+
+                if (!option.isNull("no_button_share") && option.getBoolean("no_button_share")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_SHARE;
+                }
+
+                if (!option.isNull("no_button_participants") && option.getBoolean("no_button_participants")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_PARTICIPANTS;
+                }
+
+                if (!option.isNull("no_button_more") && option.getBoolean("no_button_more")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_MORE;
+                }
+
+                if (!option.isNull("no_text_meeting_id") && option.getBoolean("no_text_meeting_id")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_TEXT_MEETING_ID;
+                }
+
+                if (!option.isNull("no_text_password") && option.getBoolean("no_text_password")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_TEXT_PASSWORD;
+                }
+
+                if (!option.isNull("no_button_leave") && option.getBoolean("no_button_leave")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_LEAVE;
+                }
+
+                if (!option.isNull("no_button_switch_camera") && option.getBoolean("no_button_switch_camera")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_SWITCH_CAMERA;
+                }
+
+                if (!option.isNull("no_button_switch_audio_source") && option.getBoolean("no_button_switch_audio_source")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_SWITCH_AUDIO_SOURCE;
+                }
+
             } catch (JSONException ex) {
                 if (DEBUG) { Log.i(TAG, ex.getMessage()); }
             }
@@ -539,6 +590,10 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
         StartMeetingOptions opts = new StartMeetingOptions();
         if (option != null) {
             try {
+                opts.custom_meeting_id = option.isNull("custom_meeting_id")? null : option.getString("custom_meeting_id");
+                opts.participant_id = option.isNull("participant_id")? null : option.getString("participant_id");
+                opts.no_unmute_confirm_dialog = option.isNull("no_unmute_confirm_dialog")? false : option.getBoolean("no_unmute_confirm_dialog");
+                opts.no_webinar_register_dialog = option.isNull("no_webinar_register_dialog")? false : option.getBoolean("no_webinar_register_dialog");
                 opts.no_driving_mode = option.isNull("no_driving_mode")? false : option.getBoolean("no_driving_mode");
                 opts.no_invite = option.isNull("no_invite")? false : option.getBoolean("no_invite");
                 opts.no_meeting_end_message = option.isNull("no_meeting_end_message")? false : option.getBoolean("no_meeting_end_message");
@@ -551,6 +606,47 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
                 opts.no_audio = option.isNull("no_audio")? false : option.getBoolean("no_audio");
                 opts.no_video = option.isNull("no_video")? false : option.getBoolean("no_video");
                 opts.no_meeting_error_message = option.isNull("no_meeting_error_message")? false : option.getBoolean("no_meeting_error_message");
+                opts.meeting_views_options = 0;
+
+                if (!option.isNull("no_button_video") && option.getBoolean("no_button_video")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_VIDEO;
+                }
+
+                if (!option.isNull("no_button_audio") && option.getBoolean("no_button_audio")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_AUDIO;
+                }
+
+                if (!option.isNull("no_button_share") && option.getBoolean("no_button_share")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_SHARE;
+                }
+
+                if (!option.isNull("no_button_participants") && option.getBoolean("no_button_participants")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_PARTICIPANTS;
+                }
+
+                if (!option.isNull("no_button_more") && option.getBoolean("no_button_more")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_MORE;
+                }
+
+                if (!option.isNull("no_text_meeting_id") && option.getBoolean("no_text_meeting_id")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_TEXT_MEETING_ID;
+                }
+
+                if (!option.isNull("no_text_password") && option.getBoolean("no_text_password")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_TEXT_PASSWORD;
+                }
+
+                if (!option.isNull("no_button_leave") && option.getBoolean("no_button_leave")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_LEAVE;
+                }
+
+                if (!option.isNull("no_button_switch_camera") && option.getBoolean("no_button_switch_camera")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_SWITCH_CAMERA;
+                }
+
+                if (!option.isNull("no_button_switch_audio_source") && option.getBoolean("no_button_switch_audio_source")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_SWITCH_AUDIO_SOURCE;
+                }
             } catch(JSONException ex) {
                 if (DEBUG) { Log.i(TAG, ex.getMessage()); }
             }
@@ -608,7 +704,7 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
                     }
                 });
             } else {
-                pluginResult =  new PluginResult(PluginResult.Status.ERROR, "Your zoom token, zoom access token, and userId are not valid");
+                pluginResult =  new PluginResult(PluginResult.Status.ERROR, "Your zoom token, zoom access token, or userId are not valid");
                 pluginResult.setKeepCallback(true);
                 callbackContext.sendPluginResult(pluginResult);
             }
@@ -648,6 +744,10 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
         // If user provides meeting options, configure them.
         if (option != null) {
             try {
+                opts.custom_meeting_id = option.isNull("custom_meeting_id")? null : option.getString("custom_meeting_id");
+                opts.participant_id = option.isNull("participant_id")? null : option.getString("participant_id");
+                opts.no_unmute_confirm_dialog = option.isNull("no_unmute_confirm_dialog")? false : option.getBoolean("no_unmute_confirm_dialog");
+                opts.no_webinar_register_dialog = option.isNull("no_webinar_register_dialog")? false : option.getBoolean("no_webinar_register_dialog");
                 opts.no_driving_mode = option.isNull("no_driving_mode")? false : option.getBoolean("no_driving_mode");
                 opts.no_invite = option.isNull("no_invite")? false : option.getBoolean("no_invite");
                 opts.no_meeting_end_message = option.isNull("no_meeting_end_message")? false : option.getBoolean("no_meeting_end_message");
@@ -659,6 +759,47 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
                 opts.no_share = option.isNull("no_share")? false : option.getBoolean("no_share");
                 opts.no_video = option.isNull("no_video")? false : option.getBoolean("no_video");
                 opts.no_meeting_error_message = option.isNull("no_meeting_error_message")? false : option.getBoolean("no_meeting_error_message");
+                opts.meeting_views_options = 0;
+
+                if (!option.isNull("no_button_video") && option.getBoolean("no_button_video")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_VIDEO;
+                }
+
+                if (!option.isNull("no_button_audio") && option.getBoolean("no_button_audio")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_AUDIO;
+                }
+
+                if (!option.isNull("no_button_share") && option.getBoolean("no_button_share")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_SHARE;
+                }
+
+                if (!option.isNull("no_button_participants") && option.getBoolean("no_button_participants")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_PARTICIPANTS;
+                }
+
+                if (!option.isNull("no_button_more") && option.getBoolean("no_button_more")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_MORE;
+                }
+
+                if (!option.isNull("no_text_meeting_id") && option.getBoolean("no_text_meeting_id")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_TEXT_MEETING_ID;
+                }
+
+                if (!option.isNull("no_text_password") && option.getBoolean("no_text_password")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_TEXT_PASSWORD;
+                }
+
+                if (!option.isNull("no_button_leave") && option.getBoolean("no_button_leave")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_LEAVE;
+                }
+
+                if (!option.isNull("no_button_switch_camera") && option.getBoolean("no_button_switch_camera")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_SWITCH_CAMERA;
+                }
+
+                if (!option.isNull("no_button_switch_audio_source") && option.getBoolean("no_button_switch_audio_source")) {
+                    opts.meeting_views_options += MeetingViewsOptions.NO_BUTTON_SWITCH_AUDIO_SOURCE;
+                }
             } catch (JSONException ex) {
                 Log.i(TAG, ex.getMessage());
             }
@@ -703,8 +844,8 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
                     }
                     ZoomSDK zoomSDK = ZoomSDK.getInstance();
                     try {
-                        Locale langugage = new Builder().setLanguageTag(languageTag.replaceAll("_","-")).build();
-                        zoomSDK.setSdkLocale(cordova.getActivity().getApplicationContext(), langugage);
+                        Locale language = new Builder().setLanguageTag(languageTag.replaceAll("_","-")).build();
+                        zoomSDK.setSdkLocale(cordova.getActivity().getApplicationContext(), language);
                         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "Successfully set language to " + languageTag));
                     } catch (IllformedLocaleException ie) {
                         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Please pass valid language and country codes. [ERROR:" + ie.getMessage() + "]"));
@@ -846,6 +987,16 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
         }
 
         return message.toString();
+    }
+
+    /**
+     * onZoomAuthIdentityExpired
+     * 
+     * A listener to get notified when the authentication identity has expired.
+     */
+    @Override
+    public void onZoomAuthIdentityExpired() {
+        Log.v(TAG, "onZoomAuthIdentityExpired is triggered");
     }
 
     /**

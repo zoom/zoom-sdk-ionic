@@ -28,6 +28,20 @@
 - (BOOL)isMeetingCoHost;
 
 /*!
+ @brief Query if the current user is the webinar attendee of the meeting.
+ @return YES means that the current user is the webinar attendee of the meeting, otherwise not.
+ @warning only for webinar meeting.
+ */
+- (BOOL)isWebinarAttendee;
+
+/*!
+ @brief Query if the current user is the webinar panelist of the meeting.
+ @return YES means that the current user is the webinar panelist of the meeting, otherwise not.
+ @warning only for webinar meeting.
+ */
+- (BOOL)isWebinarPanelist;
+
+/*!
  @brief Notify if the meeting is locked by host. Once the meeting is locked, other users out of the meeting can no longer join it.
  @return YES means that the meeting is locked by host, otherwise not.
  */
@@ -133,10 +147,12 @@
 
 /*!
  @brief Set to present Zoom original Meeting Chat ViewController.
- @param parentVC which use to present ViewController
+ @param parentVC which use to present ViewController.
+ @param userId userId of the user you would like to chat.
  @return YES means that the method is called successfully, otherwise not.
+ @warning If userId = 0 or nil, it will send to everyone.
  */
-- (BOOL)presentMeetingChatViewController:(nonnull UIViewController*)parentVC;
+- (BOOL)presentMeetingChatViewController:(nonnull UIViewController*)parentVC userId:(NSInteger)userId;
 
 /*!
  @brief Set to present Zoom original Participants ViewController.
@@ -195,7 +211,7 @@
  @return YES means that the method is called successfully, otherwise not.
  @warning The method does not work if you have set mobileRTCRootController via [MobileRTC setMobileRTCRootController]
  */
-- (BOOL)showMobileRTCMeeting:(void (^)(void))completion;
+- (BOOL)showMobileRTCMeeting:(void (^_Nonnull)(void))completion;
 
 /*!
  @brief Set to hide the UI of meeting.
@@ -203,7 +219,13 @@
  @return YES means that the method is called successfully, otherwise not.
  @warning The method does not work if you have set mobileRTCRootController via [MobileRTC setMobileRTCRootController]
  */
-- (BOOL)hideMobileRTCMeeting:(void (^)(void))completion;
+- (BOOL)hideMobileRTCMeeting:(void (^_Nonnull)(void))completion;
+
+/*!
+ @brief If you add a full-screen view to our zoom meeting UI, you can display the control bar by this method when the control bar is hidden
+ @warning The zoom meeting UI is only valid, the customized UI is invalid.
+ */
+- (void)showMeetingControlBar;
 
 #pragma mark - Q&A Related
 /*!
@@ -220,9 +242,21 @@
 - (BOOL)presentQAViewController:(nonnull UIViewController*)parentVC;
 
 /*!
- @brief If you add a full-screen view to our zoom meeting UI, you can display the control bar by this method when the control bar is hidden
- @warning The zoom meeting UI is only valid, the customized UI is invalid.
+ @brief Get current meeting's password
+ @return The current meeting's password
  */
-- (void)showMeetingControlBar;
+- (NSString *_Nullable)getMeetingPassword;
+
+/*!
+ @brief call the method to show Minimize meeting when in Zoom UI meeting.
+ @warning The method only for Zoom UI.
+ */
+- (BOOL)showMinimizeMeetingFromZoomUIMeeting;
+
+/*!
+ @brief call the methond to back Zoom UI meeting when in minimize meeting.
+ @warning The method only for Zoom UI
+ */
+- (BOOL)backZoomUIMeetingFromMinimizeMeeting;
 
 @end

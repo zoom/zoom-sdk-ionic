@@ -1,4 +1,4 @@
-# Zoom Ionic Software Development Kit (SDK) <span align="center"><img src="https://s3-us-west-1.amazonaws.com/sdk.zoom.us/Community-Project.png" width="200px" max-height="100px" style="margin:auto;"/></span>
+# Zoom Ionic SDK for Ionic Angular <span align="center"><img src="https://s3-us-west-1.amazonaws.com/sdk.zoom.us/Community-Project.png" width="200px" max-height="100px" style="margin:auto;"/></span>
 
 **Note: This is a community project initiated by Zoom. Zoom does not actively enhance the interfaces in the Ionic plugin. If you would like to contribute, please contact us or submit a pull request. Thanks! :)**
 
@@ -6,9 +6,36 @@
 <img src="https://s3.amazonaws.com/user-content.stoplight.io/8987/1541013063688" width="400px" max-height="400px" style="margin:auto;"/>
 </div>
 
+## Table of Contents
+- [:rotating_light: Announcement :rotating_light:](#rotating_light-announcement-rotating_light)   
+- [Latest SDK Notifications](#latest-sdk-notifications)   
+- [Full Documentation && Community Support](#full-documentation-community-support)   
+- [What is Zoom Ionic SDK?](#what-is-zoom-ionic-sdk)   
+- [Disclaimer](#disclaimer)   
+- [Getting Started](#getting-started)   
+  - [Prerequisites](#prerequisites)   
+  - [Installing](#installing)   
+  - [Usage](#usage)   
+  - [Build Note](#build-note)   
+- [Simulator Support](#simulator-support)   
+- [Documentation](#documentation)   
+- [Versioning](#versioning)   
+- [Change log](#change-log)   
+- [Support](#support)   
+- [License](#license)   
+- [Acknowledgments](#acknowledgments)   
+
+
+## :rotating_light: Announcement :rotating_light:
+To align with Zoom’s [recent announcement](https://blog.zoom.us/wordpress/2020/04/22/zoom-hits-milestone-on-90-day-security-plan-releases-zoom-5-0/) pertaining to our security initiative, Zoom Client SDKs have added **AES 256-bit GCM encryption** support, which provides more protection for meeting data and greater resistance to tampering. **The system-wide account enablement of AES 256-bit GCM encryption will take place on June 01, 2020.** You are **strongly recommended** to start the required upgrade to this latest version 4.6.21666.0512 at your earliest convenience. Please note that any Client SDK versions below 4.6.21666.0512 will **no longer be operational** from June 01.
+
+> If you would like to test the latest SDK with AES 256-bit GCM encryption meeting before 05/30, you may:
+> 1. Download the latest version of Zoom client: https://zoom.us/download
+> 2. Visit https://zoom.us/testgcm and launch a GCM enabled meeting with your Zoom client, you will see a Green Shield icon that indicates the GCM encryption is enabled
+> 3. Use SDK to join this meeting
+
 ## Latest SDK Notifications
 1. Please note that our Ionic SDK only support Ionic Angular.
-2. Our brand new [Zoom Developer Community Forum](https://devforum.zoom.us/) is now online!!! Check it out! We are here to help! :D
 
 ## Full Documentation && Community Support
 You can find the full Zoom Ionic SDK documentation and the community support forum here:
@@ -45,17 +72,29 @@ Before you try out our SDK, you would need the following to get started:
   * Once you have your Zoom Account, sign up for a 60-days free trial at [https://marketplace.zoom.us/](https://marketplace.zoom.us/)
 * **A mobile device**
   * Android
-    * Android 4.0 (API Level 14) or later.
+    * Android 5.0 (API Level 21) or later.
+    * CPU: armeabi-v7a, x86, armeabi, arm64-v8a, x86_64
+    * **compileSdkVersion**: 29+
+    * **buildToolsVersion**: 29+
+    * **minSdkVersion**: 21
+    * **Required dependencies**
+    ```
+    implementation 'androidx.multidex:multidex:2.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'com.google.android.material:material:1.0.0-rc01'
+    ```
   * iOS
     * iPhone or iPad
-    * **npm@6.7.0+**
-    * **ionic-cli@5.2.3+**
-    * **ionic/angular@4.1.0+**
-    * **ionic-native/core@5.8.0+**
-    * **ionic-native/zoom@5.8.0+**
-    
+    * **npm@6.13.4+**
+    * **ionic-cli@6.9.0+**
+    * **ionic/angular@5.0.0+**
+    * **ionic-native/core@5.25.0+**
+    * **ionic-native/zoom@5.25.0+**
 
-  
+
+
  If you are developing on Android, you will need to install the latest version of cordova-android
  ```
  ionic cordova platform add android@8.0.0+
@@ -126,21 +165,32 @@ this.zoomService.isLoggedIn()
 ```
 
 5. MeetingOptions
-Meeting options (Only available on Android). Configure the default meeting room.
+Meeting options. Configure the default meeting room. Some of the options are only available on Android.
 ```
 let options = {
-  "no_driving_mode":true,
-  "no_invite":true,
-  "no_meeting_end_message":true,
-  "no_titlebar":false,
-  "no_bottom_toolbar":false,
-  "no_dial_in_via_phone":true,
-  "no_dial_out_to_phone":true,
-  "no_disconnect_audio":true,
-  "no_share":true,
-  "no_audio":true,
-  "no_video":true,
-  "no_meeting_error_message":true
+  custom_meeting_id: "Customized Title",
+  no_share: false,
+  no_audio: false,
+  no_video: false,
+  no_driving_mode: true,
+  no_invite: true,
+  no_meeting_end_message: true,
+  no_dial_in_via_phone: false,
+  no_dial_out_to_phone: false,
+  no_disconnect_audio: true,
+  no_meeting_error_message: true,
+  no_unmute_confirm_dialog: true,    // Android only
+  no_webinar_register_dialog: false, // Android only
+  no_titlebar: false,
+  no_bottom_toolbar: false,
+  no_button_video: false,
+  no_button_audio: false,
+  no_button_share: false,
+  no_button_participants: false,
+  no_button_more: false,
+  no_text_password: true,
+  no_text_meeting_id: false,
+  no_button_leave: false
  };
  ```
 
@@ -249,4 +299,4 @@ Please refer to [LICENSE.md](LICENSE.md) file for details
 * If you need any support or assistance, we are here to help you: [Zoom Developer Community Forum](https://devforum.zoom.us/);
 
 ---
-Copyright ©2019 Zoom Video Communications, Inc. All rights reserved.
+Copyright ©2020 Zoom Video Communications, Inc. All rights reserved.
