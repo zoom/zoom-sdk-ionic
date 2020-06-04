@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2020-06-03 @ v4.6.21666.0603
+
+## Changed & Fixed
+* Fixed an issue that the SDK crashes when joining a meeting on iOS.
+
 ## 2020-05-12 @ v4.6.21666.0512
 
 ## Added:
