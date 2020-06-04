@@ -145,6 +145,12 @@
             // Assign delegate.
             ms.delegate = self;
             // Meeting options
+	    
+	    // just internet calling
+            if ([options objectForKey:@"internet_audio"] != [NSNull null]) {
+                [[[MobileRTC sharedRTC] getMeetingSettings] setAutoConnectInternetAudio:[options[@"internet_audio"] boolValue]];
+            }
+	    
             // custom_meeting_id
             if ([options objectForKey:@"custom_meeting_id"] != [NSNull null]) {
                 NSString* customMeetingId = options[@"custom_meeting_id"];
