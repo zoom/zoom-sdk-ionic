@@ -20,7 +20,8 @@
 - [Simulator Support](#simulator-support)   
 - [Documentation](#documentation)   
 - [Versioning](#versioning)   
-- [Change log](#change-log)   
+- [Change log](#change-log)
+- [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)     
 - [Support](#support)   
 - [License](#license)   
 - [Acknowledgments](#acknowledgments)   
@@ -95,10 +96,10 @@ Before you try out our SDK, you would need the following to get started:
 
 
 
- If you are developing on Android, you will need to install the latest version of cordova-android
- ```
- ionic cordova platform add android@8.0.0+
- ```
+ If you are developing on Android, you will need to install the latest version of cordova-android(Since the current released version of cordova-android does not support Android SDK API Level 29, please install the latest version from their Github repo, which supports Android SDK API Level 29)
+    ```
+    ionic cordova platform add https://github.com/apache/cordova-android.git
+    ```
 
  and install the following 2 plugins before you can use the Ionic SDK:
  ```
@@ -284,6 +285,25 @@ For the versions available, see the [tags on this repository](https://github.com
 
 Please refer to our [CHANGELOG](CHANGELOG.md) for all changes.
 
+## Frequently Asked Questions (FAQ)
+* :one: I am using Ionic SDK on Android and getting `AAPT: error: attribute android:foregroundServiceType not found`:
+
+    * Please have a try with the following:
+      1. Make sure you have installed the `cordova-plugin-androidx` and `cordova-plugin-androidx-adapter`
+      2. Add the following in your config.xml
+```
+<preference name="android-minSdkVersion" value="22" />
+        <preference name="android-compileSdkVersion" value="29" />
+        <preference name="android-build-tool" value="29.0.2" />
+        <preference name="android-targetSdkVersion" value="29" />
+```
+      3. [Important] When adding the Android platform support, please add using the following:
+```
+ionic cordova platform add https://github.com/apache/cordova-android.git
+```
+Since the current released version of cordova-android does not support Android SDK API Level 29, please install the latest version from their Github repo, which supports Android SDK API Level 29. Please see the following links:
+        * https://github.com/apache/cordova-android/issues/846
+        * https://github.com/apache/cordova-android/issues/830
 
 ## Support
 
