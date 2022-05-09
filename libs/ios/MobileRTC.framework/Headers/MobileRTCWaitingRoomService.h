@@ -2,7 +2,7 @@
 //  MobileRTCWaitingRoomService.h
 //  MobileRTC
 //
-//  Created by Jackie Chen on 2019/3/6.
+//  Created by Zoom Video Communications on 2019/3/6.
 //  Copyright © 2019 Zoom Video Communications, Inc. All rights reserved.
 //
 
@@ -54,7 +54,7 @@
  @brief get the waiting room user id list.
  @return waiting room user list.
  */
-- (nullable NSArray *)waitingRoomList;
+- (nullable NSArray <NSNumber *> *)waitingRoomList;
 
 /*!
  @brief get the user detail information in waiting room.

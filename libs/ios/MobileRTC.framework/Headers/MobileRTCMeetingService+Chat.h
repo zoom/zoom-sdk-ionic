@@ -2,17 +2,19 @@
 //  MobileRTCMeetingService+Chat.h
 //  MobileRTC
 //
-//  Created by Chao Bai on 2018/6/6.
+//  Created by Zoom Video Communications on 2018/6/6.
 //  Copyright © 2019 Zoom Video Communications, Inc. All rights reserved.
 //
 
 #import <MobileRTC/MobileRTC.h>
 
 typedef enum {
-    ///All the members in the group. 
+    ///Chat to all participants in the meeting. 
     MobileRTCChatGroup_All                   = 0,
-    ///Panelists.
-    MobileRTCChatGroup_Panelists              = 1,
+    ///Chat to panelists in the webinar.
+    MobileRTCChatGroup_Panelists             = 1,
+    ///Chat to waiting room user
+    MobileRTCChatGroup_WaitingRoomUsers       = 2,
 }MobileRTCChatGroup;
 
 @interface MobileRTCMeetingService (Chat)
@@ -39,9 +41,27 @@ typedef enum {
 
 /*!
  @brief get Attendee Chat Priviledge when in-meeting
- @return the result of attendee chat priviledge;
+ @return the result of attendee chat priviledge.
  */
 - (MobileRTCMeetingChatPriviledgeType)getAttendeeChatPriviledge;
+
+/*!
+ @brief Is meeting chat legal notice available.
+ @return available or not.
+ */
+- (BOOL)isMeetingChatLegalNoticeAvailable;
+
+/*!
+ @brief Get chat legal notice prompt.
+ @return chat legal notice prompt.
+ */
+- (NSString *_Nullable)getChatLegalNoticesPrompt;
+
+/*!
+ @brief Get explained text for chat legal notice.
+ @return explained text for chat legal notice.
+ */
+- (NSString *_Nullable)getChatLegalNoticesExplained;
 
 /*!
  @brief Get in-meeting chat message. 
@@ -67,4 +87,23 @@ typedef enum {
  */
 - (MobileRTCSendChatError)sendChatToGroup:(MobileRTCChatGroup)group WithContent:(nonnull NSString*)content;
 
+/*!
+ @brief Delete chat message by message id.
+ @param msgId the message id.
+ @return The result of delete the message.
+ */
+- (BOOL)deleteChatMessage:(nonnull NSString *)msgId;
+
+/*!
+ @brief Get all chat message id.
+ @return The all chat message id list. nil means failed.
+ */
+- (nullable NSArray <NSString *> *)getAllChatMessageID;
+
+/*!
+ @brief Determine whether the message can be delete.
+ @param msgId the message id.
+ @return The result of  the message can be deleted.
+ */
+- (BOOL)isChatMessageCanBeDeleted:(nonnull NSString *)msgId;
 @end

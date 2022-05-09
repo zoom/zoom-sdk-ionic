@@ -2,7 +2,7 @@
 //  MobileRTCInviteHelper.h
 //  MobileRTC
 //
-//  Created by Robust Hu on 7/29/15.
+//  Created by Zoom Video Communications on 7/29/15.
 //  Copyright (c) 2019 Zoom Video Communications, Inc. All rights reserved.
 //
 
@@ -100,12 +100,12 @@
 /*!
  @brief Custom the subject of the invitation by Email
  */
-@property (retain, nonatomic) NSString * _Nonnull inviteEmailSubject;
+@property (retain, nonatomic) NSString * _Nullable inviteEmailSubject;
 
 /*!
  @brief Custom the content of the invitation by Email
  */
-@property (retain, nonatomic) NSString * _Nonnull inviteEmailContent;
+@property (retain, nonatomic) NSString * _Nullable inviteEmailContent;
 
 /*!
  @brief Get the instance of MobileRTCInviteHelper.

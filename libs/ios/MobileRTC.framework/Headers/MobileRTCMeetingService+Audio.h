@@ -2,7 +2,7 @@
 //  MobileRTCMeetingService+Audio.h
 //  MobileRTC
 //
-//  Created by Chao Bai on 2018/6/6.
+//  Created by Zoom Video Communications on 2018/6/6.
 //  Copyright © 2019 Zoom Video Communications, Inc. All rights reserved.
 //
 
@@ -50,7 +50,7 @@
 /*!
  @brief Set if attendees join the meeting with audio muted. 
  @return YES means muted, otherwise not.
- @warning Only meeting host can run the function.
+ @warning Only meeting host/co-host can run the function.
  */
 - (BOOL)muteOnEntry:(BOOL)on;
 
@@ -74,16 +74,16 @@
  @brief Set to mute audio of all attendees.
  @param allowSelfUnmute YES means that attendee can unmute the audio himself, otherwise not.
  @return YES means that the method is called successfully, otherwise not.
- @warning Only meeting host can run the function.
+ @warning Only meeting host/co-host can run the function.
  */
 - (BOOL)muteAllUserAudio:(BOOL)allowSelfUnmute;
 
 /*!
- @brief Set to unmute audio of all attendees.
- @return YES means that the method is called successfully, otherwise not.
- @warning Only meeting host can run the function.
- */
-- (BOOL)unmuteAllUserAudio;
+@brief Ask to unmute audio of all attendees.
+@return YES means that the method is called successfully, otherwise not.
+@warning Only meeting host/co-host can run the function.
+*/
+- (BOOL)askAllToUnmute;
 
 /*!
  @brief Query if the meeting supports VoIP.
@@ -112,7 +112,7 @@
 - (MobileRTCAudioError)muteMyAudio:(BOOL)mute;
 
 /*!
- @brief Set to switch audio source of the current user.
+ @brief switch my audio output(receiver/speaker).
  */
 - (MobileRTCAudioError)switchMyAudioSource;
 

@@ -2,7 +2,7 @@
 //  MobileRTCMeetingService+Video.h
 //  MobileRTC
 //
-//  Created by Chao Bai on 2018/6/6.
+//  Created by Zoom Video Communications on 2018/6/6.
 //  Copyright © 2019 Zoom Video Communications, Inc. All rights reserved.
 //
 
@@ -41,14 +41,28 @@
  @param on YES means to spotlight user's video; NO means that spotlight user's video will be canceled.
  @param userId The ID of user whose video will be spotlighted in the meeting.
  @return YES means that the method is called successfully, otherwise not.
- @warning Only meeting host can run the function, and user spotlighted should not be the host himself.
+ @warning Only meeting host/cohost can run the function, and user spotlighted should not be the host himself.
  */
 - (BOOL)spotlightVideo:(BOOL)on withUser:(NSUInteger)userId;
+
+/*!
+ @brief Un-spotlight all the user.
+ @return Yes means follow, otherwise not.
+ @warning Only meeting host/cohost can run the function, and user spotlighted should not be the host himself.
+ */
+- (BOOL)unSpotlightAllVideos;
+
+/*!
+ @brief get spotlight user list.
+ @return userId array.
+ */
+- (NSArray <NSNumber *>* _Nullable)getSpotLightedVideoUserList;
 
 /*!
  @brief Query if the user's video is pinned. 
  @param userId The ID of user whose video will be pinned in the meeting.
  @return YES means that the user's video is pinned, otherwise not.
+ @warning The function is only for Zoom UI.
  */
 - (BOOL)isUserPinned:(NSUInteger)userId;
 
@@ -57,6 +71,7 @@
  @param on YES means to pin user's video, otherwise not. 
  @param userId The ID of user whose video will be pinned.
  @return YES means that the method is called successfully, otherwise not.
+ @warning The function is only for Zoom UI.
  */
 - (BOOL)pinVideo:(BOOL)on withUser:(NSUInteger)userId;
 
@@ -102,4 +117,23 @@
  @return The result of operation. 
  */
 - (MobileRTCCameraError)switchMyCamera;
+
+/*!
+ @brief Qurry if the account support follow host video order feature or not.
+ @return Yes means support, otherwise not.
+ */
+- (BOOL)isSupportFollowHostVideoOrder;
+
+/*!
+ @brief Qurry if follow host video order or not currently.
+ @return Yes means follow, otherwise not.
+ */
+- (BOOL)isFollowHostVideoOrderOn;
+
+/*!
+ @brief get follow host video order array currently.
+ @return userId array.
+ */
+- (NSArray <NSNumber *>* _Nullable)getVideoOrderList;
+
 @end

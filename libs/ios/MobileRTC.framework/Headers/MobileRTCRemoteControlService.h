@@ -2,7 +2,7 @@
 //  MobileRTCRemoteControlService.h
 //  MobileRTC
 //
-//  Created by Murray Li on 2018/6/22.
+//  Created by Zoom Video Communications on 2018/6/22.
 //  Copyright © 2019 Zoom Video Communications, Inc. All rights reserved.
 //
 
@@ -21,6 +21,9 @@ typedef enum
 
 /*!
  @brief It provides Remote Control Service.
+ @brief 1.Be assigned be a remote control(Notify by "remoteControlPrivilegeChanged:" check with "isHaveRemoteControlRight").
+ @brief 2.Need to grab the currently control(Call "grabRemoteControl:", check with "isRemoteController").
+ @brief 3.Can do the remote action.
  */
 @interface MobileRTCRemoteControlService : NSObject
 
@@ -28,6 +31,12 @@ typedef enum
  @brief Callback event of receiving remote control. 
  */
 @property (assign, nonatomic) id<MobileRTCRemoteControlDelegate> _Nonnull delegate;
+
+/*!
+ @brief Query if current user have control privilege. You can have this right after be assigned to the remote control.
+ @return YES means that the user got the remote control privilege. Otherwise not.
+ */
+- (BOOL)isHaveRemoteControlRight;
 
 /*!
  @brief Query if the current user gets the remote control privilege.
@@ -124,13 +133,13 @@ typedef enum
  @brief Callback event of the following values when the privilege of remote control changes.
  @param isMyControl YES means that the current user got the remote control privilege. Otherwise not. 
  */
-- (void) remoteControlPrivilegeChanged:(BOOL) isMyControl;
+- (void)remoteControlPrivilegeChanged:(BOOL)isMyControl;
 
 /*!
  @brief Callback event of the following values when remote control starts.
  @param resultValue A value of MobileRTCRemoteControlError enumeration.
  */
-- (void) startRemoteControlCallBack:(MobileRTCRemoteControlError)resultValue;
+- (void)startRemoteControlCallBack:(MobileRTCRemoteControlError)resultValue;
 
 @end
 

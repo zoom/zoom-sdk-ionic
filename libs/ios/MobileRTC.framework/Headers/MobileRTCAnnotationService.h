@@ -2,7 +2,7 @@
 //  MobileRTCAnnotationService.h
 //  MobileRTC
 //
-//  Created by Chao Bai on 2018/6/12.
+//  Created by Zoom Video Communications on 2018/6/12.
 //  Copyright © 2019 Zoom Video Communications, Inc. All rights reserved.
 //
 
@@ -142,8 +142,9 @@ typedef enum {
 /*!
  @brief Get the supported tool types.
  @return tool type array, each tool is a NSNumber object, value corresponding to enum MobileRTCAnnoTool.
+ @warning Previous version the iPad and iPhone are different tool types of support, All tool types are now available on the iPad and iPhone, See MobileRTCAnnoTool.
  */
-- (nullable NSArray *)getSupportedToolType;
+- (nullable NSArray *)getSupportedToolType DEPRECATED_ATTRIBUTE;
 
 /*!
  @brief Check if the current user is the presenter.
@@ -174,5 +175,23 @@ typedef enum {
  @return Yes if can do the annotation.
  */
 - (BOOL)canDoAnnotation;
+
+/*!
+ @brief Is annotation legal notice available.
+ @return available or not.
+ */
+- (BOOL)isAnnotationLegalNoticeAvailable;
+
+/*!
+ @brief Get annotation over share legal notices prompt.
+ @return annotation over share legal notices prompt.
+ */
+- (NSString *_Nullable)getAnnotationLegalNoticesPrompt;
+
+/*!
+ @brief Get annotation over share legal notices explained.
+ @return annotation over share legal notices explained.
+ */
+- (NSString *_Nullable)getAnnotationLegalNoticesExplained;
 
 @end

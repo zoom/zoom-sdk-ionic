@@ -2,7 +2,7 @@
 //  MobileRTC.h
 //  MobileRTC
 //
-//  Created by Robust Hu on 8/7/14.
+//  Created by Zoom Video Communications on 8/7/14.
 //  Copyright (c) 2019 Zoom Video Communications, Inc. All rights reserved.
 //
 #import <UIKit/UIKit.h>
@@ -19,14 +19,15 @@
 #import <MobileRTC/MobileRTCMeetingService+Chat.h>
 #import <MobileRTC/MobileRTCMeetingService+Webinar.h>
 #import <MobileRTC/MobileRTCMeetingService+VirtualBackground.h>
+#import <MobileRTC/MobileRTCMeetingService+Interpretation.h>
 #import <MobileRTC/MobileRTCMeetingService+BO.h>
+#import <MobileRTC/MobileRTCMeetingService+Reaction.h>
+#import <MobileRTC/MobileRTCMeetingService+LiveTranscription.h>
 #import <MobileRTC/MobileRTCMeetingSettings.h>
 #import <MobileRTC/MobileRTCInviteHelper.h>
-#import <MobileRTC/MobileRTCPremeetingService.h>
 #import <MobileRTC/MobileRTCRoomDevice.h>
 #import <MobileRTC/MobileRTCMeetingUserInfo.h>
 #import <MobileRTC/MobileRTCMeetingChat.h>
-#import <MobileRTC/MobileRTCE2EMeetingKey.h>
 #import <MobileRTC/MobileRTCMeetingDelegate.h>
 #import <MobileRTC/MobileRTCVideoView.h>
 #import <MobileRTC/MobileRTCMeetingActionItem.h>
@@ -35,7 +36,9 @@
 #import <MobileRTC/MobileRTCWaitingRoomService.h>
 #import <MobileRTC/MobileRTCRenderer.h>
 #import <MobileRTC/MobileRTCAudioRawDataHelper.h>
+#import <MobileRTC/MobileRTCVideoSourceHelper.h>
 #import <MobileRTC/MobileRTCSMSService.h>
+#import <MobileRTC/MobileRTCDirectShareService.h>
 
 /*!
  @brief MobileRTCSDKInitContext.
@@ -73,6 +76,10 @@
  @brief [Optional] If you use screen share, you need create group id in your apple developer account, and setup here.
  */
 @property (nonatomic, copy) NSString                        * _Nullable appGroupId;
+/*!
+ @brief [Optional] If you use direct screen share, you need create replaykit bundle identifier in your apple developer account, and setup here.
+ */
+@property (nonatomic, copy) NSString                        * _Nullable replaykitBundleIdentifier;
 @end
 
 /*!
@@ -82,24 +89,6 @@
  @warning The user can only obtain SDK configuration by initializing the class.  
  */
 @interface MobileRTC : NSObject
-{
-    NSString               *_mobileRTCDomain;
-    NSString               *_mobileRTCResPath;
-    NSString               *_mobileRTCCustomLocalizableName;
-    MobileRTCMeetingService         *_meetingService;
-    MobileRTCMeetingSettings        *_meetingSettings;
-    
-    MobileRTCAuthService            *_authService;
-    MobileRTCPremeetingService      *_premeetingService;
-    
-    MobileRTCAnnotationService      *_annotationService;
-    
-    MobileRTCRemoteControlService   *_remoteControlService;
-    MobileRTCWaitingRoomService     *_waitingRoomService;
-    
-    MobileRTCSMSService             *_smsService;
-}
-
 /*!
  @brief MobileRTC domain, read-only.  
  */
@@ -133,46 +122,9 @@
  @brief Call the function to switch MobileRTC domain.
  @param newDomain The new domain.
  @return YES indicates successfully. Otherwise not.
+ @warning After switch domain, need to auth again.
  */
 - (BOOL)switchDomain:(NSString * _Nonnull)newDomain force:(BOOL)force;
-
-/*!
- @deprecated This method will be deleted in next release.
- @brief Call the function to initialize MobileRTC.
- @warning The sharedSDK will be instantiated only once over the lifespan of the application. Configure the client with the specified key and secret.
- @param domain The domain is used to start/join a ZOOM meeting.
- @param enableLog Set MobileRTC log enable or not. The path of Log: Sandbox/AppData/tmp/
- */
-+ (void)initializeWithDomain:(NSString * _Nonnull)domain enableLog:(BOOL)enableLog DEPRECATED_MSG_ATTRIBUTE("Will be deleted in the next release. Please use [[MobileRTC sharedRTC] initialize:context] instead");
-
-/*!
- @deprecated This method will be deleted in next release.
- @brief Call the function to initialize MobileRTC.
- @warning The sharedSDK will be instantiated only once over the lifespan of the application. Configure the client with the specified key and secret.
- @warning This method is optional, if the MobileRTCResources.bundle is located in main bundle, please use + (void)initializeWithDomain:(NSString*)domain enableLog:(BOOL)enableLog to initialize MobileRTC; otherwise it is necessary to use the method for initialize MobileRTC.
- @param domain The domain is used to start/join a ZOOM meeting.
- @param enableLog Set MobileRTC log enable or not. The path of Log: Sandbox/AppData/tmp/
- @param bundleResPath Set the path of MobileRTC resource bundle.
- */
-+ (void)initializeWithDomain:(NSString * _Nonnull)domain enableLog:(BOOL)enableLog bundleResPath:(NSString * _Nullable)bundleResPath DEPRECATED_MSG_ATTRIBUTE("Will be deleted in the next release. Please use [[MobileRTC sharedRTC] initialize:context] instead");
-
-/*!
- @deprecated This method will be deleted in next release.
- @brief Set MobileRTC client domain.
- @warning Set the domain while initializing MobileRTC. 
- @param domain The domain is used to start/join a ZOOM meeting.
- @warning It is necessary to call the function once the application starts. 
- */
-- (void)setMobileRTCDomain:(NSString * _Nonnull)domain DEPRECATED_MSG_ATTRIBUTE("Will be deleted in the next release. Please use [[MobileRTC sharedRTC] initialize:context] instead");
-
-/*!
- @deprecated This method will be deleted in next release.
- @note Please use + (void)initializeWithDomain:(NSString*)domain enableLog:(BOOL)enableLog bundleResPath:(NSString*)bundleResPath;
- @brief Set the path of MobileRTC resource bundle.
- @warning This method is optional, the MobileRTCResources.bundle is located in main bundle if the function is not called; otherwise it is necessary to set the MobileRTC Resources path while initializing MobileRTC. 
- @param path The path of MobileRTC Resources bundle.
- */
-- (void)setMobileRTCResPath:(NSString * _Nullable)path DEPRECATED_MSG_ATTRIBUTE("Will be deleted in the next release. Please use [[MobileRTC sharedRTC] initialize:context] instead");
 
 /*!
  @brief Set the name of Localizable file for MobileRTC.
@@ -182,16 +134,17 @@
 - (void)setMobileRTCCustomLocalizableName:(NSString * _Nullable)localizableName;
 
 /*!
- @brief Get the root navigation controller of MobileRTC client.  
- @warning This method is for internal use, the user generally won't call the method. 
+ @brief Get the root navigation controller of MobileRTC client.
  @return The root navigation controller.
  */
 - (UINavigationController * _Nullable)mobileRTCRootController;
 
 /*!
- @brief Set the MobileRTC client root navigation controller.   
- @warning This method is optional, call the method if the window's rootViewController of the application is the UINavigationController, or just ignore it.
- @param navController The root navigation controller for pushing MobileRTC meeting UI. 
+ @brief Set the MobileRTC client root navigation controller.
+ @param navController The root navigation controller for pushing MobileRTC meeting UI.
+ @warning This method is optional, call the method if the window's rootViewController of the application is the UINavigationController, prefer to set the root view controller.<UINavigationController>.
+ @warning If not set the root view controller. Zoom meeting will displayed on the  WINDOW which level same as app window, create by SDK.
+ @warning In that case, if you want to disaplay customized UI of you app above Zoom meeting view, should get meeting view(call "- (UIView * _Nullable)meetingView;) and then add your customized view to the meeting view.
  */
 - (void)setMobileRTCRootController:(UINavigationController * _Nullable)navController;
 
@@ -219,13 +172,6 @@
  @return The preconfigured authentication service. 
  */
 - (MobileRTCAuthService * _Nullable)getAuthService;
-
-/*!
- @brief Get the default pre-meeting service. 
- @warning Pre-meeting Service will be called once the user logged in with a work email, it is used to schedule/edit/list/delete a meeting.
- @return The preconfigured pre-meeting service.
- */
-- (MobileRTCPremeetingService * _Nullable)getPreMeetingService;
 
 /*!
  @brief Get the default meeting service.  
@@ -264,11 +210,23 @@
 - (MobileRTCSMSService * _Nullable)getSMSService;
 
 /*!
+@brief Get the default MobileRTC direct share service.
+@return The MobileRTC direct share service.
+*/
+- (MobileRTCDirectShareService * _Nullable)getDirectShareService;
+
+/*!
+@brief Get the video source helper.@see MobileRTCVideoSourceHelper
+@return The object of MobileRTCVideoSourceHelper.
+*/
+- (MobileRTCVideoSourceHelper * _Nullable)getVideoSourceHelper;
+
+/*!
  @brief Get the languages supported by MobileRTC.   
  @warning The languages supported by MobileRTC are English, German, Spanish, Japanese, French, Simplified Chinese, Traditional Chinese.
  @return An array of languages supported by MobileRTC.
  */
-- (NSArray * _Nonnull)supportedLanguages;
+- (NSArray <NSString *> * _Nonnull)supportedLanguages;
 
 /*!
  @brief Set the MobileRTC language.
@@ -276,13 +234,6 @@
  @param lang The specified language.  
  */
 - (void)setLanguage:(NSString * _Nullable)lang;
-
-/*!
- @deprecated This method will be deleted in next release.
- @brief Set the AppGroup ID of the application. 
- @warning The Method is used for iOS Replaykit Screen share integration and should be called after SDK initiation.
- */
-- (void)setAppGroupsName:(NSString * _Nullable)appGroupId DEPRECATED_MSG_ATTRIBUTE("Will be deleted in the next release. Please use [[MobileRTC sharedRTC] initialize:context] instead");
 
 /*!
  @brief Notify common layer that application will resign active. Call the systematical method and then call the appWillResignActive via applicationWillResignActive.
@@ -307,6 +258,24 @@
  @warning It is necessary to call the method in AppDelegate "- (void)applicationWillTerminate:(UIApplication *)application".
  */
 - (void)appWillTerminate;
+
+/*!
+@brief Notify MobileRTC when the root UIViewController's traitCollection will change
+@param newCollection The first parameter of willTransitionToTraitCollection:withTransitionCoordinator which is UIContentContainer method.
+@param coordinator The second parameter of willTransitionToTraitCollection:withTransitionCoordinator which is UIContentContainer method.
+@warning Not work in Custom In-Meeting UI.
+@warning Call this method when the window.rootViewController recevived willTransitionToTraitCollection:withTransitionCoordinator.
+*/
+- (void)willTransitionToTraitCollection:(UITraitCollection *_Nullable)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>_Nullable)coordinator;
+
+/*!
+@brief Notify MobileRTC when the root UIViewController's view size will change
+@param size The first parameter of viewWillTransitionToSize:withTransitionCoordinator.
+@param coordinator the second parameter of viewWillTransitionToSize:withTransitionCoordinator.
+@warning Not work in Custom In-Meeting UI.
+@warning Call this method when the window.rootViewController recevived viewWillTransitionToSize:withTransitionCoordinator.
+*/
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>_Nullable)coordinator;
 
 /*!
  @brief Gets whether you have permission to use raw data.

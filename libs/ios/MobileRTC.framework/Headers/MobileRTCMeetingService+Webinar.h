@@ -62,8 +62,6 @@
  */
 - (BOOL)isAllowPanelistStartVideo;
 
-
-#pragma mark Q&A relate Action in Webinar Meeting
 /*!
  @brief Allow Panelist to start video in Webinar.
  @param enable Enable/Disable Panelist to start video.
@@ -72,6 +70,7 @@
  */
 - (BOOL)allowPanelistStartVideo:(BOOL)enable;
 
+#pragma mark Q&A relate Action in Webinar Meeting
 /*!
  @brief Query if it is allowed to ask question anonymously in webinar.
  @return YES means allowed, otherwise not.
@@ -118,20 +117,6 @@
  @brief Query if attendee is allowed to comment questions.
  @return YES means allowed, otherwise not.
  */
-- (BOOL)isAllowAttendeeAnswerQuestion DEPRECATED_MSG_ATTRIBUTE("Had deprecated. Please use - (BOOL)isAllowCommentQuestion; instead");
-
-/*!
- @brief Allow attendee to comment question.
- @param Enable Allow/Disallow attendee to comment question.
- @return YES means that the method is called successfully, otherwise not.
- @warning Only meeting host/co-host can run the function.
- */
-- (BOOL)allowAttendeeAnswerQuestion:(BOOL)enable DEPRECATED_MSG_ATTRIBUTE("Had deprecated. Please use - (BOOL)allowCommentQuestion:(BOOL)enable; instead");
-
-/*!
- @brief Query if attendee is allowed to comment questions.
- @return YES means allowed, otherwise not.
- */
 - (BOOL)isAllowCommentQuestion;
 
 /*!
@@ -146,35 +131,35 @@
  @brief Get all questions.
  @return All questions list.
  */
-- (nullable NSArray *)getAllQuestionList;
+- (nullable NSArray <MobileRTCQAItem *> *)getAllQuestionList;
 
 /*!
  @brief Get My questions.
  @return My questions list.
  @warning Only attendee can run the function.
  */
-- (nullable NSArray *)getMyQuestionList;
+- (nullable NSArray <MobileRTCQAItem *> *)getMyQuestionList;
 
 /*!
  @brief Get Open questions.
  @return Open questions list.
  @warning Only meeting host/co-host/panelist can run the function.
  */
-- (nullable NSArray *)getOpenQuestionList;
+- (nullable NSArray <MobileRTCQAItem *> *)getOpenQuestionList;
 
 /*!
  @brief Get Dismissed questions.
  @return Dismissed questions list.
  @warning Only meeting host/co-host/panelist can run the function.
  */
-- (nullable NSArray *)getDismissedQuestionList;
+- (nullable NSArray <MobileRTCQAItem *> *)getDismissedQuestionList;
 
 /*!
  @brief Get Answered questions.
  @return Answered questions list.
  @warning Only meeting host/co-host/panelist can run the function.
  */
-- (nullable NSArray *)getAnsweredQuestionList;
+- (nullable NSArray <MobileRTCQAItem *> *)getAnsweredQuestionList;
 
 /*!
  @brief Get the amount of all questions.
@@ -297,4 +282,61 @@
  */
 - (BOOL)endLiving:(nonnull NSString *)questionID;
 
+/*!
+ @brief delete Quesion.
+ @param questionID question id.
+ @return successs or not.
+ @warning Only meeting host/co-host/panelist can run the function.
+ */
+- (BOOL)deleteQuestion:(nonnull NSString *)questionID;
+
+/*!
+ @brief delete answerID.
+ @param answerID answerID id.
+ @return successs or not.
+ @warning Only meeting host/co-host/panelist can run the function.
+ */
+- (BOOL)deleteAnswer:(nonnull NSString *)answerID;
+
+/*!
+@brief Is QA legal notice available.
+@return available or not.
+*/
+- (BOOL)isQALegalNoticeAvailable;
+
+/*!
+@brief Get QA legal notices prompt.
+@return QA legal notices prompt.
+*/
+- (NSString *_Nullable)getQALegalNoticesPrompt;
+
+/*!
+@brief Get QA legal notices explained.
+@return QA legal notices explained.
+*/
+- (NSString *_Nullable)getQALegalNoticesExplained;
+
+/*!
+ @brief Get poll legal notices prompt.
+ @return poll legal notices prompt.
+ */
+- (NSString *_Nullable)getPollLegalNoticesPrompt;
+
+/*!
+ @brief is polling legal notice available.
+ @return available or not.
+ */
+- (BOOL)isPollingLegalNoticeAvailable;
+
+/*!
+ @brief Get poll legal notices explained.
+ @return poll legal notices explained.
+ */
+- (NSString *_Nullable)getPollLegalNoticesExplained;
+
+/*!
+ @brief Get poll anonymous legal notices explained.
+ @return poll anonymous legal notices explained.
+ */
+- (NSString *_Nullable)getPollAnonymousLegalNoticesExplained;
 @end

@@ -2,7 +2,7 @@
 //  MobileRTCMeetingService+VirtualBackground.h
 //  MobileRTC
 //
-//  Created by Jackie Chen on 2019/10/22.
+//  Created by Zoom Video Communications on 2019/10/22.
 //  Copyright © 2019 Zoom Video Communications, Inc. All rights reserved.
 //
 
@@ -11,12 +11,11 @@
 /*!
  @brief image item property
  */
-@interface ZoomSDKVirtualBGImageInfo : NSObject
-
+@interface MobileRTCVirtualBGImageInfo : NSObject
 /*!
- @brief None item if yes.
+ @brief virtual background image type.
  */
-@property(nonatomic, assign) BOOL isNone;
+@property(nonatomic, assign) MobileRTCVBType vbType;
 
 /*!
  @brief current using image item if yes.
@@ -49,6 +48,7 @@
 /*!
  @brief is support virtual background.
  @return YES mean support, you can use it.
+ @warning device should be iPhone 8/ 8 plus X or above or be iPad Pro 9.7 above, OS should be iOS 11 or above.
  */
 - (BOOL)isSupportVirtualBG;
 
@@ -64,7 +64,7 @@
  @brief get the virtual background list.
  @return Return Narray of the items which include the None item.
  */
-- (NSArray * _Nonnull)getBGImageList;
+- (NSArray <MobileRTCVirtualBGImageInfo *>* _Nonnull)getBGImageList;
 
 /*!
  @brief add and use the image for virtual background.
@@ -77,13 +77,13 @@
  @brief Will use the previous one for virtual background.
  @return Remove result.
  */
-- (MobileRTCMeetError)removeBGImage:(ZoomSDKVirtualBGImageInfo *_Nonnull)bgImageInfo;
+- (MobileRTCMeetError)removeBGImage:(MobileRTCVirtualBGImageInfo *_Nonnull)bgImageInfo;
 
 /*!
  @brief use the specify image item for virtual background.
  @return The result of use image item.
  */
-- (MobileRTCMeetError)useBGImage:(ZoomSDKVirtualBGImageInfo *_Nonnull)bgImage;
+- (MobileRTCMeetError)useBGImage:(MobileRTCVirtualBGImageInfo *_Nonnull)bgImage;
 
 /*!
  @brief Disable the virtrual background, same as use a none image item.
@@ -102,13 +102,16 @@
  @brief Enable green virtual background mode.
  @param enable or disable.
  @return result of enable green virtual background.
+ @warning only iPad support Virtual background GreenScreen, iPhone does not support the feature.
+ @warning need call "startPreviewWithFrame:" to get the preview View, and shown in your UI hierarchy. Then select the point in preview view. We will using the color of your selected(point of the preview) to calculate the background.
  */
 - (MobileRTCMeetError)enableGreenVB:(BOOL)enable;
 
 /*!
  @brief Select the point that regard as background.
- @param point in preview view.
+ @param point point in preview view.
  @return result of set background point action.
+ @warning only iPad support Virtual background GreenScreen, iPhone does not support the feature.
  */
 - (MobileRTCMeetError)selectGreenVBPoint:(CGPoint)point;
 

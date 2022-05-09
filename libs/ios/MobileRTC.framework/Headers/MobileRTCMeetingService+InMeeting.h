@@ -2,7 +2,7 @@
 //  MobileRTCMeetingService+InMeeting.h
 //  MobileRTC
 //
-//  Created by Robust Hu on 2017/2/27.
+//  Created by Zoom Video Communications on 2017/2/27.
 //  Copyright © 2019年 Zoom Video Communications, Inc. All rights reserved.
 //
 
@@ -84,36 +84,25 @@
  */
 - (void)turnOnCMR:(BOOL)on;
 
+/*!
+ @brief Get current cloud recording.
+ @return return If the function succeeds, the return value is recording status.
+ */
+- (MobileRTCRecordingStatus)getCloudRecordingStatus;
+
 #pragma mark Meeting Info Related
-/*!
- @brief Set custom meeting session key
- @param keyArray The array of meeting session keys. 
- @param leave YES means leaving meeting directly, otherwise not.
- @return YES means that the method is called successfully, otherwise not.
- @warning The method is optional.
- */
-- (BOOL)handleE2EMeetingKey:(nonnull NSArray*)keyArray withLeaveMeeting:(BOOL)leave;
-
-/*!
- @brief Query if the meeting is external or not.
- @return YES means external, otherwise not.
- @warning The method is optional.
- */
-- (BOOL)isExternalMeeting;
-
-/*!
- @brief Query if the meeting is internal or not.
- @return YES means internal, otherwise not.
- @warning The method is optional.
- */
-- (BOOL)isInternalMeeting;
-
 /*!
  @brief Query if the meeting is failover.
  @return YES means failover, otherwise not.
  @warning The method is optional.
  */
 - (BOOL)isFailoverMeeting;
+
+/**
+ * @brief Get the type of current meeting.
+ * @return If the function succeeds, it will return the type of meeting, otherwise failed.
+ */
+- (MobileRTCMeetingType)getMeetingType;
 
 /*!
  @brief Query if the meeting is Webinar.
@@ -170,14 +159,6 @@
  */
 - (BOOL)configDSCPWithAudioValue:(NSUInteger)audioValue VideoValue:(NSUInteger)videoValue;
 
-/*!
- @brief Set to hide the Full Phone Number of purely Call-in User.
- @param bHide YES means hide, otherwise not.
- @return YES means that the method is called successfully, otherwise not.
- @warning The method should be invoked before meeting starts.
- */
-- (BOOL)hideFullPhoneNumberForPureCallInUser:(BOOL)bHide;
-
 #pragma mark Live Stream
 /*!
  @brief Set to start Live Stream.
@@ -188,12 +169,15 @@
  @warning Only meeting host can start live Stream successfully.
  */
 - (BOOL)startLiveStreamWithStreamingURL:(nonnull NSString*)streamingURL StreamingKey:(nonnull NSString*)key BroadcastURL:(nonnull NSString*)broadcastURL;
+
 /*!
  @brief Get live stream server URL.
  @return The dictionary of live stream URL if the function succeeds.
- @warning The function is available only for host. 
- For Facebook Live Stream Service, fb_workplace action the key in Dictionary
- For Custom Live Stream Service, custom action the key in Dictionary
+ @warning The function is available only for host.
+ For Facebook Live Stream Service, "facebook" as the key in Dictionary.
+ For Workplace by Facebook Live Stream Service, "fb_workplace" as the key in Dictionary.
+ For YouTube Live Stream Service, "youtube" as the key in Dictionary.
+ For Custom Live Stream Service, "custom" as the key in Dictionary.
  */
 - (nullable NSDictionary*)getLiveStreamURL;
 
@@ -227,6 +211,44 @@
  */
 - (void)showMeetingControlBar;
 
+/*!
+ @brief Switch to active scene.The sequence of video frames is { drive scene(only iPhone), active scene, gallery scene(if has)}
+ @warning The zoom meeting UI is only valid, the customized UI is invalid.
+ @warning Both the iPad and the iPhone can use this method
+ */
+- (void)switchToActiveSpeaker;
+
+/*!
+ @brief Switch to gallery scene.The sequence of video frames is { drive scene(only iPhone), active scene, gallery scene(if has)}
+ @warning The zoom meeting UI is only valid, the customized UI is invalid.
+ @warning Both the iPad and the iPhone can use this method
+ */
+- (void)switchToVideoWall;
+
+/*!
+ @brief Switch to drive scene.The sequence of video frames is { drive scene(only iPhone), active scene, gallery scene(if has)}
+ @warning The zoom meeting UI is only valid, the customized UI is invalid.
+ @warning Only iPhone can use this method
+ */
+- (void)switchToDriveScene;
+
+/*!
+ @brief show app signaling pannel in designated position of container view.
+ @param containerView the view container to show app signaling pannel.
+ @param originXY the origin position of app signaling pannel in container view.
+ @return MobileRTCANNError_Success means the operation succeed, otherwise not
+ @warning originXY only take effect on iPad device, behavior of iphone always pop up from the bottom with the device width.
+ */
+- (MobileRTCANNError)showAANPanelInView:(UIView *_Nullable)containerView originPoint:(CGPoint)originXY;
+
+/*!
+ @brief hide app signaling pannel.
+ @return MobileRTCANNError_Success means the operation succeed, otherwise not
+ @warning suggest to hide ANNPannel when device orietation changed or trait collection changed to avoid layout issues
+ */
+- (MobileRTCANNError)hideAANPanel;
+
+
 #pragma mark - Q&A Related
 /*!
  @brief Query if Q&A is enabled.
@@ -258,5 +280,50 @@
  @warning The method only for Zoom UI
  */
 - (BOOL)backZoomUIMeetingFromMinimizeMeeting;
+
+/*!
+@brief Query if the meeting is allow participants to rename themselves.
+@warning Only in-meeting can call the function.
+*/
+- (BOOL)isParticipantsRenameAllowed;
+
+/*!
+@brief Set the meeting is allow participants to rename themselves.
+@warning Only meeting host/co-host can call the function.
+@warning Only in-meeting can call the function.
+*/
+- (void)allowParticipantsToRename:(BOOL)allow;
+
+/*!
+@brief Query if the meeting is allow participants to unmute themselves.
+@warning Only meeting host/co-host can call the function.
+@warning Only in-meeting can call the function.
+*/
+- (BOOL)isParticipantsUnmuteSelfAllowed;
+
+/*!
+@brief Query if the meeting is allow participants to unmute themselves.
+@warning Only meeting host/co-host can call the function.
+@warning Only in-meeting can call the function.
+*/
+- (void)allowParticipantsToUnmuteSelf:(BOOL)allow;
+
+/*!
+ @brief Is live transcript legal notice available.
+ @return available or not.
+ */
+- (BOOL)isLiveTranscriptLegalNoticeAvailable;
+
+/*!
+ @brief Get live transcript legal noticesPrompt.
+ @return live transcript legal noticesPrompt.
+ */
+- (NSString *_Nullable)getLiveTranscriptLegalNoticesPrompt;
+
+/*!
+ @brief Get live transcript legal notices explained.
+ @return live transcript legal notices explained.
+ */
+- (NSString *_Nullable)getLiveTranscriptLegalNoticesExplained;
 
 @end

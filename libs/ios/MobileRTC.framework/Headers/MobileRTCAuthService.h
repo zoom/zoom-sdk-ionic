@@ -2,7 +2,7 @@
 //  MobileRTCAuthService.h
 //  MobileRTC
 //
-//  Created by Robust Hu on 8/8/14.
+//  Created by Zoom Video Communications on 8/8/14.
 //  Copyright (c) 2019 Zoom Video Communications, Inc. All rights reserved.
 //
 
@@ -64,21 +64,18 @@
 - (MobileRTCUserType)getUserType;
 
 /*!
- @brief Specify to login MobileRTC with working email.
- @param email Login email address.
- @param password Login password.
- @return YES indicates to call the method successfully. Otherwise not.
- @warning The method is optional, ignore it if you do not have a working email for MobileRTC.
- */
-- (BOOL)loginWithEmail:(nonnull NSString*)email password:(nonnull NSString*)password rememberMe:(BOOL)rememberMe;
+* @brief generate the sso login url for specific sso vanity url
+* @param vanityUrl The prefix of vanity url.
+* @return If the function succeeds,will return url of can launch app.
+*/
+- (nullable NSString *)generateSSOLoginWebURL:(nonnull NSString*)vanityUrl;
 
-/*!
- @brief Specify to login MobileRTC with SSO (Single-Sign-On).
- @param token User's token information.
- @return YES indicates to call the method successfully. Otherwise not.
- @warning The method is optional, ignore it if you do not login MobileRTC with SSO.
+/**
+ * @brief Login ZOOM with SSO Uri Protocol.
+ * @param uriProtocol For the parameter to be used for sso account login.
+ * @return If the function succeeds, it will return ZoomSDKError_success. Otherwise failed.
  */
-- (BOOL)loginWithSSOToken:(nonnull NSString*)token rememberMe:(BOOL)rememberMe;
+- (MobileRTCLoginFailReason)ssoLoginWithWebUriProtocol:(nonnull NSString*)uriProtocol;
 
 /*!
  @brief Specify to logout MobileRTC.
@@ -117,7 +114,7 @@
  @brief Specify to get the response of MobileRTC logs in.
  @param returnValue Notify the user when the login state has changed.
  */
-- (void)onMobileRTCLoginReturn:(NSInteger)returnValue;
+- (void)onMobileRTCLoginResult:(MobileRTCLoginFailReason)resultValue;
 
 /*!
  @brief Specify to get the response of MobileRTC logs out.
@@ -190,7 +187,7 @@
  @brief Get alternative host list from user profile information.
  @return An array with MobileRTCAlternativeHost information.
  */
-- (nullable NSArray*)getCanScheduleForUsersList;
+- (nullable NSArray <MobileRTCAlternativeHost *> *)getCanScheduleForUsersList;
 
 /*!
  @brief Check if local recording is supported while scheduling a meeting.
@@ -220,7 +217,7 @@
  @brief Get specified domain from user profile.
  @return The data in domain array is NSString type.
  */
-- (nullable NSArray *)getDefaultCanJoinUserSpecifiedDomains;
+- (nullable NSArray <NSString *> *)getDefaultCanJoinUserSpecifiedDomains;
 
 @end
 
