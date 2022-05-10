@@ -59,28 +59,6 @@
     });
 }
 
-- (void)login:(CDVInvokedUrlCommand*)command
-{
-    pluginResult = nil;
-    callbackId = command.callbackId;
-    // Get variables.
-    NSString* username = [command.arguments objectAtIndex:0];
-    NSString* password = [command.arguments objectAtIndex:1];
-    // Run login method on main thread.
-    dispatch_async(dispatch_get_main_queue(), ^(void) {
-        if (username != nil && [username isKindOfClass:[NSString class]] && [username length] > 0 && password != nil && [password isKindOfClass:[NSString class]]  && [password length]) {
-            // Try to log user in
-            [[[MobileRTC sharedRTC] getAuthService] loginWithEmail:username password:password rememberMe:YES];
-        } else {
-            NSMutableDictionary *res = [[NSMutableDictionary alloc] init];
-            res[@"result"] = @NO;
-            res[@"message"] = @"Please enter valid username and password";
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:res];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-        }
-    });
-}
-
 - (void)logout:(CDVInvokedUrlCommand*)command
 {
     pluginResult = nil;
@@ -269,14 +247,14 @@
                 participantID = options[@"participant_id"];
             }
             // Prepare meeting parameters.
-            NSDictionary *paramDict = @{
-                                        kMeetingParam_Username:displayName,
-                                        kMeetingParam_MeetingNumber:meetingNo,
-                                        kMeetingParam_MeetingPassword:meetingPassword,
-                                        kMeetingParam_ParticipantID: participantID
-                                        };
+            MobileRTCMeetingJoinParam *joinParams = [[MobileRTCMeetingJoinParam alloc] init];
+            joinParams.meetingNumber = meetingNo;
+            joinParams.password = meetingPassword;
+            joinParams.userName = displayName;
+            joinParams.customerKey = participantID;
+
             // Join meeting.
-            MobileRTCMeetError response = [ms joinMeetingWithDictionary:paramDict];
+            MobileRTCMeetError response = [ms joinMeetingWithJoinParam:joinParams];
             if (DEBUG) {
                 NSLog(@"Join a Meeting res:%d", response);
             }
@@ -449,7 +427,7 @@
                 user.userType = MobileRTCUserType_APIUser;
                 user.meetingNumber = meetingNo;
                 user.userName = displayName;
-                user.userToken = zoomToken;
+                // user.userToken = zoomToken;
                 user.userID = userId;
                 user.isAppShare = NO;
                 user.zak = zoomAccessToken;
@@ -457,7 +435,7 @@
             }
             // participant_id
             if ([options objectForKey:@"participant_id"] != [NSNull null]) {
-                param.participantID = options[@"participant_id"];
+                param.customerKey = options[@"participant_id"];
             }
             // Start meeting.
             MobileRTCMeetError response = [ms startMeetingWithStartParam:param];
@@ -601,10 +579,9 @@
                 [[MobileRTC sharedRTC] getMeetingSettings].meetingLeaveHidden = NO;
             }
             // Prepare start meeting parameters.
-            NSDictionary* paramDict = nil;
-            paramDict = @{};
-            // Start instant meeting.
-            MobileRTCMeetError response = [ms startMeetingWithDictionary:paramDict];
+            MobileRTCMeetingJoinParam *joinParams = [[MobileRTCMeetingJoinParam alloc] init];
+            // Join meeting.
+            MobileRTCMeetError response = [ms joinMeetingWithJoinParam:joinParams];
             if (DEBUG) {
                 NSLog(@"start an instant meeting res:%d", response);
             }
