@@ -34,6 +34,7 @@
         context.domain = kSDKDomain;
         context.enableLog = YES;
         context.locale = MobileRTC_ZoomLocale_Default;
+        context.appGroupId = @"";
 
         BOOL initRet = [[MobileRTC sharedRTC] initialize:context];
 
