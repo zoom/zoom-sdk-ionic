@@ -65,11 +65,5 @@
  * @param CDVInvokedUrlCommand bridging method to get arguments, callbackId, className and methodName.
  */
 - (void)startInstantMeeting:(CDVInvokedUrlCommand*)command;
-/**
- * setLocale
- *
- * Set in-meeting language.
- * @param CDVInvokedUrlCommand bridging method to get arguments, callbackId, className and methodName.
- */
-- (void)setLocale:(CDVInvokedUrlCommand*)command;
+
 @end
