@@ -7,8 +7,9 @@
 
 #import "Zoom.h"
 
+
 #define kSDKDomain  @"https://zoom.us"
-#define DEBUG   NO
+#define DEBUG   YES
 
 @implementation Zoom
 
@@ -109,6 +110,8 @@
     }
     // Meeting number regular expression.
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\d{8,11}" options:0 error:nil];
+    UIViewController *rootVC = [self topMostController];
+    // UINavigationController* navController = [[UINavigationController alloc] initWithRootViewController:rootVC];
 
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         if (meetingNo == nil || ![meetingNo isKindOfClass:[NSString class]] || [meetingNo length] == 0 || [regex numberOfMatchesInString:meetingNo options:0 range:NSMakeRange(0, [meetingNo length])] == 0|| displayName == nil || ![displayName isKindOfClass:[NSString class]] || [displayName length] == 0) {
@@ -123,6 +126,7 @@
         {
             // Assign delegate.
             ms.delegate = self;
+            [[MobileRTC sharedRTC] setMobileRTCRootController:rootVC.navigationController];
             // Meeting options
 	    
 	    // just internet calling
@@ -258,8 +262,22 @@
             if (DEBUG) {
                 NSLog(@"Join a Meeting res:%d", response);
             }
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Joined"];
+            [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
         }
     });
+}
+
+- (UIViewController*) topMostController
+{
+    UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
+
+    while (topController.presentedViewController) {
+        topController = topController.presentedViewController;
+    }
+
+    return topController;
 }
 
 - (void)startMeeting:(CDVInvokedUrlCommand*)command
@@ -636,6 +654,7 @@
     });
 }
 
+
 - (void)onMobileRTCAuthReturn:(MobileRTCAuthError)returnValue
 {
     if (DEBUG) {
@@ -716,6 +735,31 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
 
+- (void)onMeetingReturn:(MobileRTCMeetError)error internalError:(NSInteger)internalError
+{
+    if (DEBUG) {
+     NSLog(@"onMeetingError:%zd, message:%zd", error, internalError);
+    }
+    if (error != MobileRTCMeetError_Success) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[self getMeetErrorMessage:error]];
+    } else {
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[self getMeetErrorMessage:error]];
+    }
+    [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+}
+
+- (void)onMeetingEndedReason:(MobileRTCMeetingEndReason)reason
+{
+    if (DEBUG) {
+     NSLog(@"onMeetingEndedReason:%zd", reason);
+    }
+    
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[self getMeetingEndedMessage:reason]];
+    [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+}
+
 - (NSString *)getAuthErrorMessage:(MobileRTCAuthError)errorCode
 {
     NSString* message = @"";
@@ -737,6 +781,39 @@
             break;
         case MobileRTCAuthError_Unknown:
             message = @"Unknown error.Please try again.";
+            break;
+        default:
+            message = @"Unknown error.Please try again.";
+            break;
+    }
+    return message;
+}
+
+- (NSString *)getMeetingEndedMessage:(MobileRTCMeetingEndReason)errorCode
+{
+    NSString* message = @"";
+
+    switch (errorCode) {
+        case MobileRTCMeetingEndReason_SelfLeave:
+            message = @"Self left.";
+            break;
+        case MobileRTCMeetingEndReason_RemovedByHost:
+            message = @"Removed by host.";
+            break;
+        case MobileRTCMeetingEndReason_EndByHost:
+            message = @"Ended by host.";
+            break;
+        case MobileRTCMeetingEndReason_JBHTimeout:
+            message = @"JBH Timout.";
+            break;
+        case MobileRTCMeetingEndReason_NoAteendee:
+            message = @"No attendee.";
+            break;
+        case MobileRTCMeetingEndReason_HostEndForAnotherMeeting:
+            message = @"Host ended for another meeting.";
+            break;
+        case MobileRTCMeetingEndReason_ConnectBroken:
+            message = @"Connection broken.";
             break;
         default:
             message = @"Unknown error.Please try again.";
