@@ -25,6 +25,7 @@ import android.content.DialogInterface;
 import androidx.core.content.ContextCompat;
 
 //import us.zoom.sdk.MeetingParameter;
+import us.zoom.sdk.MeetingParameter;
 import us.zoom.sdk.ZoomSDK;
 import us.zoom.sdk.ZoomSDKAuthenticationListener;
 import us.zoom.sdk.ZoomSDKInitializeListener;
@@ -1054,6 +1055,11 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
             );
             toast.show();
         }
+    }
+
+    @Override
+    public void onMeetingParameterNotification(MeetingParameter meetingParameter) {
+
     }
 
     /**
