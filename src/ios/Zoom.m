@@ -35,7 +35,7 @@
         context.domain = kSDKDomain;
         context.enableLog = YES;
         context.locale = MobileRTC_ZoomLocale_Default;
-        context.appGroupId = @"";
+        context.appGroupId = @"group.riahealth";
 
         BOOL initRet = [[MobileRTC sharedRTC] initialize:context];
 
