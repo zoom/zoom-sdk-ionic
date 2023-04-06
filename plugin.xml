@@ -29,8 +29,10 @@
             <uses-permission android:name="android.permission.CALL_PHONE" />
             <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
         </config-file>
-        <source-file framework="true" src="libs/android/commonlib.aar" target-dir="libs/android" />
-        <source-file framework="true" src="libs/android/mobilertc.aar" target-dir="libs/android" />
+        <source-file framework="true" src="libs/android/commonlib/commonlib.aar" target-dir="libs/commonlib/commonlib.aar" />
+        <source-file framework="true" src="libs/android/commonlib/build.gradle" target-dir="libs/commonlib/build.gradle" />
+        <source-file framework="true" src="libs/android/mobilertc/mobilertc.aar" target-dir="libs/mobilertc/mobilertc.aar" />
+        <source-file framework="true" src="libs/android/mobilertc/build.gradle" target-dir="libs/mobilertc/build.gradle" />
         <source-file framework="true" src="src/android/AuthThread.java" target-dir="src/cordova/plugin/zoom/Zoom" />
         <source-file src="src/android/Zoom.java" target-dir="src/cordova/plugin/zoom/Zoom" />
         <framework custom="true" src="src/android/build-extras.gradle" target-dir="." type="gradleReference" />
