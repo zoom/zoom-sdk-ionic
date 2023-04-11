@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MobileRTCConstants.h"
+#import "MobileRTCNotificationServiceHelper.h"
 
 @protocol MobileRTCAuthDelegate;
 @class MobileRTCAccountInfo;
@@ -90,6 +91,32 @@
  @warning You can only get the instance successfully of logged-in user.
  */
 - (nullable MobileRTCAccountInfo*)getAccountInfo;
+
+/*!
+ @brief Enable or disable auto register notification service. This is enabled by default.
+ @param enable YES means enabled, otherwise not.
+ */
+- (void)enableAutoRegisterNotificationServiceForLogin:(BOOL)enable;
+
+/*!
+ @brief Register notification service.
+ @param accessToken Initialize parameter of notification service.
+ @return If the function succeeds, it will return MobileRTCSDKError_Success. Otherwise failed.
+ */
+- (MobileRTCSDKError)registerNotificationService:(nullable NSString*)accessToken;
+
+/*!
+ @brief Unregister notification service.
+ @return If the function succeeds, it will return MobileRTCSDKError_Success. Otherwise failed.
+ */
+- (MobileRTCSDKError)unregisterNotificationService;
+
+/*!
+ @brief Get notification service controller interface.
+ @return If the function succeeds, it will return a ZoomSDKZpnsServiceController object.
+ */
+- (MobileRTCNotificationServiceHelper*_Nullable)getNotificationServiceHelper;
+
 @end
 
 /*!
@@ -113,6 +140,7 @@
 /*!
  @brief Specify to get the response of MobileRTC logs in.
  @param returnValue Notify the user when the login state has changed.
+ @warning If the callback is implemented, the Zoom UI alert tips are no longer displayed.
  */
 - (void)onMobileRTCLoginResult:(MobileRTCLoginFailReason)resultValue;
 
@@ -121,6 +149,12 @@
  @param returnValue Notify that the user has logged-out successfully.
  */
 - (void)onMobileRTCLogoutReturn:(NSInteger)returnValue;
+
+/*!
+ @brief Notification service status changed callback.
+ @param status The value of transfer meeting service. For more details, see [MobileRTCNotificationServiceStatus].
+ */
+- (void)onNotificationServiceStatus:(MobileRTCNotificationServiceStatus)status;
 
 @end
 

@@ -446,7 +446,7 @@
                 user.meetingNumber = meetingNo;
                 user.userName = displayName;
                 // user.userToken = zoomToken;
-                user.userID = userId;
+                // user.userID = userId;
                 user.isAppShare = NO;
                 user.zak = zoomAccessToken;
                 param = user;

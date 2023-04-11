@@ -46,7 +46,7 @@ typedef enum : NSUInteger {
 /*!
 @brief get bo meeting user array.
 */
-- (NSArray * _Nullable)getBOMeetingUserList;
+- (NSArray <NSString *>* _Nullable)getBOMeetingUserList;
 @end
 
 /*!

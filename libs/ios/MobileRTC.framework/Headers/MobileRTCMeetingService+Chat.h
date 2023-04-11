@@ -32,12 +32,13 @@ typedef enum {
 - (BOOL)isPrivateChatDisabled;
 
 /*!
- @brief set Attendee Chat Priviledge when in-meeting
+ @brief Set Attendee Chat Priviledge when in-meeting
+ @param privilege The chat privilege of the attendee
  @return YES means sucessfull, otherwise not.
  @warning Only meeting host/co-host can run the function.
  @warning only normal meeting(non webinar meeting) can run the function.
  */
-- (BOOL)changeAttendeeChatPriviledge:(MobileRTCMeetingChatPriviledgeType)type;
+- (BOOL)changeAttendeeChatPriviledge:(MobileRTCMeetingChatPriviledgeType)privilege;
 
 /*!
  @brief get Attendee Chat Priviledge when in-meeting
@@ -106,4 +107,24 @@ typedef enum {
  @return The result of  the message can be deleted.
  */
 - (BOOL)isChatMessageCanBeDeleted:(nonnull NSString *)msgId;
+
+/*!
+ @brief Is share meeting chat legal notice available.
+ @return available or not.
+ @warning need call in meeting.
+ */
+- (BOOL)isShareMeetingChatLegalNoticeAvailable;
+
+/*!
+ @brief Get start share meeting chat legal notice content.
+ @return start share chat legal notice content.
+ */
+- (NSString *_Nullable)getShareMeetingChatStartedLegalNoticeContent;
+
+/*!
+ @brief Get stop share meeting chat legal notice content.
+ @return stop share chat legal notice content.
+ */
+- (NSString *_Nullable)getShareMeetingChatStoppedLegalNoticeContent;
+
 @end

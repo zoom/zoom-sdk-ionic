@@ -10,51 +10,54 @@
 #import <MobileRTC/MobileRTC.h>
 #import "MobileRTCBORole.h"
 
+/*!
+ @brief Creates Breakout Room meetings-related objects and fetches Breakout Room-related status information.
+ */
 @interface MobileRTCMeetingService (BO)
 
 /*!
-@brief get MobileRTCBOCreator object
+@brief Object for creating Breakout Room meetings defined in  [MobileRTCBOCreator].
 */
 - (MobileRTCBOCreator * _Nullable)getCreatorHelper;
 
 /*!
-@brief get MobileRTCBOAdmin object
+@brief Object for administrator management of Breakout Room meetings defined in [MobileRTCBOAdmin].
 */
 - (MobileRTCBOAdmin * _Nullable)getAdminHelper;
 
 /*!
-@brief get MobileRTCBOAssistant object
+@brief Object for help assistant of Breakout Room meetings defined in [MobileRTCBOAssistant].
 */
 - (MobileRTCBOAssistant * _Nullable)getAssistantHelper;
 
 /*!
-@brief get MobileRTCBOAttendee object
+@brief Object for attendee functionality of Breakout Room meetings defined in [MobileRTCBOAttendee].
 */
 - (MobileRTCBOAttendee * _Nullable)getAttedeeHelper;
 
 /*!
-@brief get MobileRTCBOData object
+@brief Object for Breakout Room meeting id information defined in [MobileRTCBOData].
 */
 - (MobileRTCBOData * _Nullable)getDataHelper;
 
 /*!
-@brief is BO meeting started.
+@brief Has Breakout Room meeting began.
 */
 - (BOOL)isBOMeetingStarted;
 
 /*!
-@brief is BO meeting feature enabled in web page.
+@brief Is Breakout Room feature enabled in meeting.
 */
 - (BOOL)isBOMeetingEnabled;
 
 /*!
-@brief is in bo meeting right now.
+@brief Is currently in Breakout Room during meeting.
 */
 - (BOOL)isInBOMeeting;
 
 /*!
-@brief Get current BO status
-@return The return value is a enum for bo status.
+@brief Get current Breakout status.
+@return Enum for Breakout status. [MobileRTCBOStatus]
 */
 - (MobileRTCBOStatus)getBOStatus;
 
