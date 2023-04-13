@@ -20,6 +20,7 @@ import java.util.Locale.Builder;
 
 import us.zoom.sdk.ChatMessageDeleteType;
 import us.zoom.sdk.FreeMeetingNeedUpgradeType;
+import us.zoom.sdk.IRequestLocalRecordingPrivilegeHandler;
 import us.zoom.sdk.InMeetingAudioController;
 import us.zoom.sdk.InMeetingChatController;
 import us.zoom.sdk.InMeetingChatMessage;
@@ -57,7 +58,7 @@ import us.zoom.sdk.ZoomUIService;
  * @author  Zoom Video Communications, Inc.
  * @version v4.6.21666.0603
  */
-public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener, MeetingServiceListener {
+public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener, MeetingServiceListener, InMeetingServiceListener {
     /* Debug variables */
     private static final String TAG = "ZoomIonicAngularPlugin";
     private static final boolean DEBUG = false;
@@ -101,6 +102,17 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
                                 initialize(appKey, appSecret, callbackContext);
                             }
                         }
+                );
+                break;
+            case "initializeWithJwt":
+                String jwt = args.getString(0);
+                cordova.getActivity().runOnUiThread(
+                    new Runnable() {
+                          @Override
+                          public void run() {
+                              initializeWithJwt(jwt, callbackContext);
+                          }
+                    }
                 );
                 break;
 //            case "login":
@@ -154,8 +166,42 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
         }
         return true;
     }
+  private void initializeWithJwt(String jwt, CallbackContext callbackContext) {
+    Log.d(TAG, "in initializeWithJwt with jwt: " + jwt);
+    ZoomSDK mZoomSDK = ZoomSDK.getInstance();
+    ZoomSDKInitializeListener listener = new ZoomSDKInitializeListener() {
+      @Override
+      public void onZoomSDKInitializeResult(int errorCode, int internalErrorCode) {
+        if (errorCode == ZoomError.ZOOM_ERROR_SUCCESS) {
+          Log.d(TAG, "Initialized the Zoom SDK using JWT");
+          callbackContext.success("Initialize successfully!");
+        } else {
+          Log.d(TAG, "Error initializing zoom sdk using JWT, error code: " + errorCode);
+          Log.d(TAG, "internalErrorCode: " + internalErrorCode);
+          callbackContext.error(errorCode);
+        }
+      }
 
-    /**
+      @Override
+      public void onZoomAuthIdentityExpired() {
+
+      }
+    };
+    if (jwt == null || jwt.trim().isEmpty() || jwt.equals("null")) {
+      callbackContext.error("jwt cannot be empty");
+      return;
+    }
+
+    ZoomSDKInitParams initParams = new ZoomSDKInitParams();
+
+    initParams.jwtToken = jwt;
+    initParams.domain = "zoom.us";
+    initParams.enableLog = true;
+
+    mZoomSDK.initialize(cordova.getActivity(), listener, initParams);
+  }
+
+  /**
      * initialize
      * <p>
      * Initialize Zoom SDK.
@@ -768,7 +814,10 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
             }
             if (zoomToken.length() != 0 && zoomAccessToken.length() != 0 && userId.length() != 0) {
                 StartMeetingParamsWithoutLogin params = new StartMeetingParamsWithoutLogin();
-                params.userId = userId;
+
+                // SDK 5.13 removed params.userId
+                // https://devsupport.zoom.us/hc/en-us/articles/12330750576269-Zoom-Meeting-SDK-Android-5-13-0
+                // params.userId = userId;
                 // SDK 5.11 does not support this field, only zoomAccessToken is to be set now
 //                params.zoomToken = zoomToken;
                 params.userType = MeetingService.USER_TYPE_API_USER;
@@ -1095,6 +1144,11 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
         Log.v(TAG, "onZoomAuthIdentityExpired is triggered");
     }
 
+    @Override
+    public void onNotificationServiceStatus(SDKNotificationServiceStatus sdkNotificationServiceStatus) {
+
+    }
+
     /**
      * onZoomIdentityExpired
      * <p>
@@ -1395,6 +1449,11 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
     }
 
     @Override
+    public void onShareMeetingChatStatusChanged(boolean b) {
+
+    }
+
+    @Override
     public void onUserNetworkQualityChanged(long userId) {
     }
 
@@ -1498,6 +1557,41 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
 
     @Override
     public void onLocalVideoOrderUpdated(List<Long> list) {
+
+    }
+
+    @Override
+    public void onLocalRecordingPrivilegeRequested(IRequestLocalRecordingPrivilegeHandler iRequestLocalRecordingPrivilegeHandler) {
+
+    }
+
+    @Override
+    public void onSuspendParticipantsActivities() {
+
+    }
+
+    @Override
+    public void onAllowParticipantsStartVideoNotification(boolean b) {
+
+    }
+
+    @Override
+    public void onAllowParticipantsRenameNotification(boolean b) {
+
+    }
+
+    @Override
+    public void onAllowParticipantsUnmuteSelfNotification(boolean b) {
+
+    }
+
+    @Override
+    public void onAllowParticipantsShareWhiteBoardNotification(boolean b) {
+
+    }
+
+    @Override
+    public void onMeetingLockStatus(boolean b) {
 
     }
 }
