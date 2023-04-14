@@ -24,6 +24,13 @@
  */
 - (void)initialize:(CDVInvokedUrlCommand*)command;
 /**
+ * initializeWithJWT
+ *
+ * Initialize Zoom SDK with JWT.
+ * @param CDVInvokedUrlCommand bridging method to get arguments, callbackId, className and methodName.
+ */
+- (void)initializeWithJwt:(CDVInvokedUrlCommand*)command;
+/**
  * login
  *
  * Log user in with Zoom username and password.
