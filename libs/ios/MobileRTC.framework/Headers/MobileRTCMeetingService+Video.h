@@ -27,7 +27,13 @@
  @param mute YES means to mute video of the current user, otherwise not.
  @return The result of operation.
  */
-- (MobileRTCVideoError)muteMyVideo:(BOOL)mute;
+- (MobileRTCSDKError)muteMyVideo:(BOOL)mute;
+
+/*!
+ @brief Rotate my video.
+ @return the result of it.
+ */
+- (BOOL)rotateMyVideo:(UIDeviceOrientation)rotation;
 
 /*!
  @brief Query if user's video is spotlighted. Once the user's video is spotlighted, it will show only the specified video in the meeting instead of active user's.  
@@ -135,5 +141,25 @@
  @return userId array.
  */
 - (NSArray <NSNumber *>* _Nullable)getVideoOrderList;
+
+/*!
+ @brief Stop the incoming video.
+ @param enable YES indicates to enable to stop incoming video.
+ @return If the function succeeds, the return value is MobileRTCSDKError_Success.
+ Otherwise the function fails and returns an error. To get extended error information, see [MobileRTCSDKError] enum.
+ */
+- (MobileRTCSDKError)stopIncomingVideo:(BOOL)enable;
+
+/*!
+ @brief Determine if the incoming video is stopped.
+ @return YES indicates to the incoming video is stopped.
+ */
+- (BOOL)isIncomingVideoStoped;
+
+/*!
+ @brief Determine if the incoming video is supported.
+ @return YES indicates to the incoming video is supported.
+ */
+- (BOOL)isStopIncomingVideoSupported;
 
 @end

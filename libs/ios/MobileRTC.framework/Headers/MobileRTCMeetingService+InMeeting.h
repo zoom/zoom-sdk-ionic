@@ -9,6 +9,39 @@
 #import <MobileRTC/MobileRTC.h>
 #import <MobileRTC/MobileRTCMeetingUserInfo.h>
 #import <MobileRTC/MobileRTCMeetingChat.h>
+#import <MobileRTC/MobileRTCRawLiveStreamInfo.h>
+
+/*!
+ @brief Process after the host receives the requirement from the user to give the local recording privilege.
+ */
+@interface MobileRTCRequestLocalRecordingPrivilegeHandler : NSObject
+/*!
+ @brief Get the request ID.
+ @return If the function succeeds, the return value is the request ID.
+ */
+- (NSString * _Nullable)getRequestId;
+/*!
+ @brief Get the user ID who requested privilege.
+ @return If the function succeeds, the return value is the user ID. Otherwise, this returns 0.
+ */
+- (NSInteger)getRequesterId;
+/*!
+ @brief Get the user name who requested privileges.
+ @return If the function succeeds, the return value is the user name.
+ */
+- (NSString * _Nullable)getRequesterName;
+/*!
+ @brief Allows the user to start local recording.
+ @return the result of it.
+ */
+- (MobileRTCSDKError)grantLocalRecordingPrivilege;
+/*!
+ @brief Denies the user permission to start local recording.
+ @return the result of it.
+ */
+- (MobileRTCSDKError)denyLocalRecordingPrivilege;
+
+@end
 
 /*!
  @brief Set to provide interfaces for meeting events
@@ -188,6 +221,77 @@
  */
 - (BOOL)stopLiveStream;
 
+/*
+ @brief Query Whether the meeting supports raw live streams.
+ @return YES if supported, NO if not supported.
+ */
+- (BOOL)isRawLiveStreamSupported;
+
+/*
+ @brief Whether the current user is able to start raw live streaming.
+ @return If the current user is able to start raw live streaming, the return value is MobileRTCSDKError_Success.
+ Otherwise it fails. To get extended error information, see [MobileRTCSDKError] enum.
+ */
+- (MobileRTCSDKError)canStartRawLiveStream;
+
+/*
+ @brief Send a request to enable the SDK to start a raw live stream.
+ @return If the function succeeds, the return value is MobileRTCSDKError_Success and the SDK will send the request.
+ Otherwise it fail and the request will not be sent. To get extended error information, see [MobileRTCSDKError] enum.
+ */
+- (MobileRTCSDKError)requestRawLiveStream:(nonnull NSString *)broadcastURL DEPRECATED_MSG_ATTRIBUTE("Use -requestRawLiveStreaming: broadcastName: instead");
+
+/*
+ @brief Send a request to enable the SDK to start a raw live stream.
+ @param broadcastURL The broadcast URL of the live-stream.
+ @param broadcastName The broadcast name of the live-stream.
+ @return If the function succeeds, the return value is MobileRTCSDKError_Success and the SDK will send the request.
+ Otherwise it fail and the request will not be sent. To get extended error information, see [MobileRTCSDKError] enum.
+ */
+- (MobileRTCSDKError)requestRawLiveStreaming:(nonnull NSString *)broadcastURL broadcastName:(NSString *_Nullable)broadcastName ;
+
+/*!
+ @brief Start a rawData live stream.
+ @param broadcastURL Everyone who uses this link can watch the live broadcast.
+ @return If the function succeeds, it will return the MobileRTCSDKError_Success, otherwise failed.
+ */
+- (MobileRTCSDKError)startRawLiveStream:(nonnull NSString *)broadcastURL DEPRECATED_MSG_ATTRIBUTE("Use -startRawLiveStreaming: broadcastName: instead");
+
+/*
+ @brief Start a rawData live stream.
+ @param broadcastURL The broadcast URL of the live-stream.
+ @param broadcastName The broadcast name of the live-stream.
+ @return If the function succeeds, the return value is MobileRTCSDKError_Success and the SDK will send the request.
+ Otherwise it fail and the request will not be sent. To get extended error information, see [MobileRTCSDKError] enum.
+ */
+- (MobileRTCSDKError)startRawLiveStreaming:(nonnull NSString *)broadcastURL broadcastName:(NSString *_Nullable)broadcastName;
+
+/*!
+ @brief Stop a rawData live stream.
+ @return If the function succeeds, it will return the MobileRTCSDKError_Success, otherwise failed.
+ */
+- (MobileRTCSDKError)stopRawLiveStream;
+
+/*!
+ @brief Remove the raw live stream privilege.
+ @param userId Specify the ID of the user whose privilege will be removed.
+ @return If the function succeeds, the return value is SDKErr_Success. Otherwise it fails. To get extended error information, see [MobileRTCSDKError] enum.
+ */
+- (MobileRTCSDKError)removeRawLiveStreamPrivilege:(NSUInteger)userId;
+
+/*
+ @brief Get a list of current active raw live streams.
+ @return If the function succeeds, the return value is a pointer to the NSArray object.
+ */
+- (NSArray<MobileRTCRawLiveStreamInfo *> * _Nullable)getRawLiveStreamingInfoList;
+
+/*
+ @brief Get the list of users’ IDs who have raw live stream privileges.
+ @return If the function succeeds, the return value is a pointer to the NSArray object.
+ */
+- (NSArray <NSNumber *> * _Nullable)getRawLiveStreamPrivilegeUserList;
+
+
 #pragma mark Display/Hide Meeting UI
 /*!
  @brief Set to show UI of meeting.
@@ -308,6 +412,35 @@
 */
 - (void)allowParticipantsToUnmuteSelf:(BOOL)allow;
 
+/**
+* Allow participant to start video
+*
+* @param allow YES: allow, NO: disallow
+* @return error {@link MobileRTCSDKError}
+*/
+- (MobileRTCSDKError)allowParticipantsToStartVideo:(BOOL)allow;
+
+/**
+* Query is allow   participant to start video
+*
+* @return YES : allow, NO: disallow
+*/
+- (BOOL)isParticipantsStartVideoAllowed;
+
+/**
+* Allow participant to share white board
+*
+* @param allow YES: allow, NO: disallow
+* @return error {@link MobileRTCSDKError}
+*/
+- (MobileRTCSDKError)allowParticipantsToShareWhiteBoard:(BOOL)allow;
+
+/**
+* Query is allow   participant to share white board
+*
+* @return YES: allow, NO: disallow
+*/
+-(BOOL)isParticipantsShareWhiteBoardAllowed;
 /*!
  @brief Is live transcript legal notice available.
  @return available or not.
@@ -326,4 +459,16 @@
  */
 - (NSString *_Nullable)getLiveTranscriptLegalNoticesExplained;
 
+/**
+ * Whether the current user is able to suspend all participant activities
+ * @return YES means user can  suspend participant activities,
+ */
+
+- (BOOL)canSuspendParticipantsActivities;
+/**
+ * Suspend all participant activities
+ * @return MobileRTCANNError_Success means the operation succeed, otherwise no
+ * @warning Audio,Video,Share,Chat,Wihteboard funcation will be suspended,that need to call allowParticipantsToUnmuteSelf.allowParticipantsToStartVideo.lockShare.changeAttendeeChatPriviledge and allowParticipantsToShareWhiteBoard interfaces to resume
+ */
+- (MobileRTCSDKError)suspendParticipantsActivites;
 @end

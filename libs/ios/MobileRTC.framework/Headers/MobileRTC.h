@@ -17,12 +17,14 @@
 #import <MobileRTC/MobileRTCMeetingService+Video.h>
 #import <MobileRTC/MobileRTCMeetingService+User.h>
 #import <MobileRTC/MobileRTCMeetingService+Chat.h>
+#import <MobileRTC/MobileRTCMeetingService+Avatar.h>
 #import <MobileRTC/MobileRTCMeetingService+Webinar.h>
 #import <MobileRTC/MobileRTCMeetingService+VirtualBackground.h>
 #import <MobileRTC/MobileRTCMeetingService+Interpretation.h>
 #import <MobileRTC/MobileRTCMeetingService+BO.h>
 #import <MobileRTC/MobileRTCMeetingService+Reaction.h>
 #import <MobileRTC/MobileRTCMeetingService+LiveTranscription.h>
+#import <MobileRTC/MobileRTCMeetingService+RawArchiving.h>
 #import <MobileRTC/MobileRTCMeetingSettings.h>
 #import <MobileRTC/MobileRTCInviteHelper.h>
 #import <MobileRTC/MobileRTCRoomDevice.h>
@@ -37,6 +39,8 @@
 #import <MobileRTC/MobileRTCRenderer.h>
 #import <MobileRTC/MobileRTCAudioRawDataHelper.h>
 #import <MobileRTC/MobileRTCVideoSourceHelper.h>
+#import <MobileRTC/MobileRTCShareSourceHelper.h>
+#import <MobileRTC/MobileRTCAudioSourceHelper.h>
 #import <MobileRTC/MobileRTCSMSService.h>
 #import <MobileRTC/MobileRTCDirectShareService.h>
 
@@ -220,6 +224,12 @@
 @return The object of MobileRTCVideoSourceHelper.
 */
 - (MobileRTCVideoSourceHelper * _Nullable)getVideoSourceHelper;
+
+/*!
+@brief Get the video source helper.@see MobileRTCShareSourceHelper
+@return The object of MobileRTCShareSourceHelper.
+*/
+- (MobileRTCShareSourceHelper * _Nullable)getShareSourceHelper;
 
 /*!
  @brief Get the languages supported by MobileRTC.   

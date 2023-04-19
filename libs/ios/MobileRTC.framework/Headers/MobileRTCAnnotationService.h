@@ -121,30 +121,20 @@ typedef enum {
 /*!
  @brief Set to clear the annotations.  
  @return The result of operation.
- @warning Check firstly if the tool is supported via getSupportedToolType.
  */
 - (MobileRTCAnnotationError)clear;
 
 /*!
  @brief Undo the last annotation.  
  @return The result of undoing the annotations.
- @warning Check firstly if the tool is supported via getSupportedToolType.
  */
 - (MobileRTCAnnotationError)undo;
 
 /*!
  @brief Redo the last annotation.
  @return The result of redoing the annotations. 
- @warning Check firstly if the tool is supported via getSupportedToolType.
  */
 - (MobileRTCAnnotationError)redo;
-
-/*!
- @brief Get the supported tool types.
- @return tool type array, each tool is a NSNumber object, value corresponding to enum MobileRTCAnnoTool.
- @warning Previous version the iPad and iPhone are different tool types of support, All tool types are now available on the iPad and iPhone, See MobileRTCAnnoTool.
- */
-- (nullable NSArray *)getSupportedToolType DEPRECATED_ATTRIBUTE;
 
 /*!
  @brief Check if the current user is the presenter.

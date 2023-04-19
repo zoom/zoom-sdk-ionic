@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 /*!
- @brief MobileRTCDeviceType An enumeration of room device types. 
+ @brief MobileRTCDeviceType Enumeration of room device types.
  */
 typedef enum {
     ///H.323 Device
@@ -21,7 +21,7 @@ typedef enum {
 }MobileRTCDeviceType;
 
 /*!
- @brief MobileRTCDeviceEncryptType An Enumeration of H.323/SIP encryption types.
+ @brief MobileRTCDeviceEncryptType Enumeration of H.323/SIP encryption types.
  */
 typedef enum {
     ///Meeting room system is not encrypted.

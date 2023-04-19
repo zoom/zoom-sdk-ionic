@@ -27,7 +27,7 @@
 @end
 
 /*!
- @class MobileRTCQAAnswerItem
+ @class MobileRTCQAItem
  @brief The object of Q&A question.
  */
 @interface MobileRTCQAItem : NSObject
@@ -58,7 +58,7 @@
 
 - (BOOL)isSenderMyself;
 
-- (nullable NSArray *)getAnswerlist;
+- (nullable NSArray <MobileRTCQAAnswerItem *>*)getAnswerlist;
 @end
 
 

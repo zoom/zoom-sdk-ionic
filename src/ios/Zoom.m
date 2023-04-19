@@ -60,6 +60,52 @@
     });
 }
 
+- (void)initializeWithJwt:(CDVInvokedUrlCommand*)command
+{
+    pluginResult = nil;
+    callbackId = command.callbackId;
+    // Get variable
+    NSString* jwt = [command.arguments objectAtIndex:0];
+
+    // Run authentication and initialize SDK on main thread.
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        // if input parameters are not valid.
+        if (jwt == nil || ![jwt isKindOfClass:[NSString class]] || [jwt length] == 0 ) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Please pass valid jwt."];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+            return;
+        }
+
+        // Initialize SDK.
+        MobileRTCSDKInitContext *context = [[MobileRTCSDKInitContext alloc] init];
+        context.domain = kSDKDomain;
+        context.enableLog = YES;
+        context.locale = MobileRTC_ZoomLocale_Default;
+        context.appGroupId = @"group.riahealth";
+
+        BOOL initRet = [[MobileRTC sharedRTC] initialize:context];
+
+        // If the SDK has successfully authorized, avoid re-authorization.
+        if ([[MobileRTC sharedRTC] isRTCAuthorized])
+        {
+            return;
+        }
+
+        // Get auth service.
+        MobileRTCAuthService *authService = [[MobileRTC sharedRTC] getAuthService];
+        if (authService)
+        {
+            // Auth step
+            // Assign delegate.
+            authService.delegate = self;
+            // Assign key and secret.
+            authService.jwtToken = jwt;
+            // Perform SDK auth.
+            [authService sdkAuth];
+        }
+    });
+}
+
 - (void)logout:(CDVInvokedUrlCommand*)command
 {
     pluginResult = nil;
@@ -446,7 +492,7 @@
                 user.meetingNumber = meetingNo;
                 user.userName = displayName;
                 // user.userToken = zoomToken;
-                user.userID = userId;
+                // user.userID = userId;
                 user.isAppShare = NO;
                 user.zak = zoomAccessToken;
                 param = user;

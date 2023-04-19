@@ -12,40 +12,49 @@
 #import "MobileRTCBORole.h"
 #import "MobileRTCReturnToMainSessionHandler.h"
 #import "MobileRTCPreProcessRawData.h"
+#import "MobileRTCAudioSender.h"
 #import "MobileRTCVideoSender.h"
+#import "MobileRTCShareSender.h"
 #import "MobileRTCVideoCapabilityItem.h"
+#import "MobileRTCLiveTranscriptionLanguage.h"
+#import "MobileRTCRawLiveStreamInfo.h"
+#import "MobileRTCRequestRawLiveStreamPrivilegeHandler.h"
 
 @class MobileRTCInterpretationLanguage;
 @class MobileRTCMeetingParameter;
+@class MobileRTCSignInterpreterLanguage;
+@class MobileRTCRequestLocalRecordingPrivilegeHandler;
+@class MobileRTCMeetingInviteActionItem;
+@class MobileRTCMeetingShareActionItem;
+
 #pragma mark - MobileRTCMeetingServiceDelegate
 /*!
  @protocol MobileRTCMeetingServiceDelegate
- @brief The Meeting Service will issue the following values when the meeting state changes.
+ @brief Delegate containing callbacks related to meeting state updates.
  */  
 @protocol MobileRTCMeetingServiceDelegate <NSObject>
-
 @optional
 /*!
- @brief Specified Meeting Errors.
- @param error Internal error code.
- @param message The message for meeting errors.
+ @brief An error has occurred.
+ @param error The error code. See [MobileRTCMeetError].
+ @param message The message of the error.
  */
 - (void)onMeetingError:(MobileRTCMeetError)error message:(NSString * _Nullable)message;
 
 /*!
- @brief Notify the user that the meeting status changes. 
- @param state The meeting status changes.
+ @brief Notify the user that the meeting state has changed.
+ @param state The new meeting state. [MobileRTCMeetingState].
  */
 - (void)onMeetingStateChange:(MobileRTCMeetingState)state;
 
 /*!
- @brief Meeting parameter notification callback.
- @param meetingParam meetingParam Meeting parameter.
+ @brief The meeting parameters have been updated.
+ @param meetingParam meetingParam Meeting parameter. See [MobileRTCMeetingParameter].
  */
 - (void)onMeetingParameterNotification:(MobileRTCMeetingParameter *_Nullable)meetingParam;
 
 /*!
- @brief Notify the user that the requirement to join meeting is confirmed.
+ @brief The meeting has been joined successfully.
  */
 - (void)onJoinMeetingConfirmed;
 
@@ -55,291 +64,374 @@
 - (void)onMeetingReady;
 
 /*!
- @brief Join a meeting without host, you can show/hide the custom JBH waiting UI.
+ @brief Join a meeting without a host. You can show or hide the custom JBH waiting UI.
  @param cmd Show/Hide JBH command.
  */
 - (void)onJBHWaitingWithCmd:(JBHCmd)cmd;
 
 /*!
- @brief Determine if the current user has the cloud recording privilege.  
+ @brief Determine if the current user has cloud recording privileges.
  @param result The result of checking CMR privilege.
  */
 - (void)onCheckCMRPrivilege:(MobileRTCCMRError)result;
 
 /*!
- @brief Cloud recording status notify callback.
- @param status recording status.
+ @brief @brief The cloud recording status has changed.
+ @param status The new recording status.
  */
 - (void)onRecordingStatus:(MobileRTCRecordingStatus)status;
 
 /*!
- @brief Local recording status notify callback.
- @param userId Specify the user ID whose status changes.
- @param status recording status.
+ @brief The local recording status has changed.
+ @param userId The ID of the user who caused the change.
+ @param status The new recording status.
  */
 - (void)onLocalRecordingStatus:(NSInteger)userId status:(MobileRTCRecordingStatus)status;
 
 /*!
- @brief Meeting is ended by some reasons.
- @param reason The reason why meeting is ended.
+ @brief The meeting has ended.
+ @param reason The reason why the meeting has ended. See [MobileRTCMeetingEndReason].
  */
 - (void)onMeetingEndedReason:(MobileRTCMeetingEndReason)reason;
 
 /*!
- @brief Meeting without host will be ended after some-awhile.
- @param minutes The minutes remaining to end the meeting.
+ @brief The meeting does not have a host and ends.
+ @param minutes The minutes remaining until the meeting ends.
  */
 - (void)onNoHostMeetingWillTerminate:(NSUInteger)minutes;
 
 /*!
- @brief Notify user the issues of microphone.
+ @brief The user's microphone has encountered an error.
+ @param errror The error. See [MobileRTCMicropohoneError]
  */
 - (void)onMicrophoneStatusError:(MobileRTCMicrophoneError)error;
 
 /*!
- @brief Notify user to provide join meeting information: screen name or meeting password.
- @param displayName User needs to provide screen name to join a meeting.
- @param password User needs to provide meeting password to join a meeting.
- @param cancel Once the user cancels to provide screen name or meeting password, it is canceled to join the meeting.
+ @brief The user must provide additional information before joining the meeting.
+ @param displayName A name to be displayed in the meeting.
+ @param password The meeting passcode.
+ @param cancel If YES, the attempt to join the meeting is cancelled.
  */
 - (void)onJoinMeetingInfo:(MobileRTCJoinMeetingInfo)info
                completion:(void (^_Nonnull)(NSString * _Nonnull displayName, NSString * _Nonnull password, BOOL cancel))completion;
 
 /*!
- @brief Set to ask user to provide proxy information: username and password.
+ @brief The user must provide proxy information.
  @param host Proxy host.
  @param port Proxy port.
- @param completion SDK will ask user to input proxy information once it detects the information changes. 
+ @param completion The SDK asks the user to input proxy information once it detects that the information changed.
  */
 - (void)onProxyAuth:(NSString*_Nonnull)host
                port:(NSUInteger)port
          completion:(void (^_Nonnull)(NSString * _Nonnull host, NSUInteger port, NSString *_Nonnull username, NSString * _Nonnull password, BOOL cancel))completion;
 
 /*!
- @brief Set if user needs to end another ongoing meeting.
- @param completion Ask user to end another ongoing meeting or not.
+ @brief The user needs to end another ongoing meeting.
+ @param completion Ask the user to end another ongoing meeting.
  */
 - (void)onAskToEndOtherMeeting:(void (^_Nonnull)(BOOL cancel))completion;
 
 /*!
- @brief Notify user that microphone access permission is denied.  
+ @brief Microphone access permission was denied.
  */
 - (void)onMicrophoneNoPrivilege;
 
 /*!
- @brief Notify user that camera access permission is denied. 
+ @brief Camera access permission was denied.
  */
 - (void)onCameraNoPrivilege;
 
 /*!
- @brief Inform user that free meeting will be ended in 10 minutes.
- @param host YES means the original host of the current meeting, otherwise not.
- @param freeUpgrade YES means the current free meeting will be upgraded. Once upgraded, the current meeting can last for more than 40 minutes.
- @param first and second time, meeting is no limit, from third time, will end meeting at 40 mins.
- @param completion MobileRTC will call the module to upgrade the current meeting once the parameter UPGRADE is YES.
- */
-- (void)onFreeMeetingReminder:(BOOL)host
-               canFreeUpgrade:(BOOL)freeUpgrade
-                  isFirstGift:(BOOL)first
-                   completion:(void (^_Nonnull)(BOOL upgrade))completion DEPRECATED_ATTRIBUTE;
-
-/*!
- @brief The result of upgrading free meeting.
+ @brief The result of a free meeting upgrade attempt has been received.
  @param result ZERO(0) means the upgrade was successful, otherwise it failed.
  */
 - (void)onUpgradeFreeMeetingResult:(NSUInteger)result;
 
-/**
- * @brief Designated for notify the free meeting need upgrade.
- * @param type The enumeration of FreeMeetingNeedUpgradeType, if the type is FreeMeetingNeedUpgradeType_BY_GIFTURL, user can upgrade free meeting through url. if the type is FreeMeetingNeedUpgradeType_BY_ADMIN, user can ask admin user to upgrade the meeting.
- * @param giftURL User can upgrade the free meeting through the url.
+/*!
+ @brief The free meeting needs an upgrade.
+ @param type See [FreeMeetingNeedUpgradeType], if the type is [FreeMeetingNeedUpgradeType_BY_GIFTURL], the user can upgrade through the url. If the type is [FreeMeetingNeedUpgradeType_BY_ADMIN], only the user's admin can upgrade the meeting.
+ @param giftURL The URL through which the meeting can be upgraded.
  */
 - (void)onFreeMeetingNeedToUpgrade:(FreeMeetingNeedUpgradeType)type giftUpgradeURL:(NSString*_Nullable)giftURL;
 
-/**
- * @brief Designated for notify the free meeting which has been upgraded to free trail meeting has started.
+/*!
+ @brief The free meeting was upgraded to a free trial and has started.
  */
 - (void)onFreeMeetingUpgradeToGiftFreeTrialStart;
 
-/**
- * @brief Designated for notify the free meeting which has been upgraded to free trail meeting has stoped.
+/*!
+ @brief The free meeting which was upgraded to a free trial has stopped.
  */
 - (void)onFreeMeetingUpgradeToGiftFreeTrialStop;
 
-/**
- * @brief Designated for notify the free meeting has been upgraded to professional meeting.
+/*!
+ @brief The meeting has been upgraded to a pro (licensed) meeting.
  */
 - (void)onFreeMeetingUpgradedToProMeeting;
 
 /*!
- @brief Customize the invitation event.
- @param parentVC Parent viewcontroller to present custom Invite UI. 
- @param array <MobileRTCMeetingInviteActionItem *>Add custom InviteActionItem to Invite ActionSheet.
- @return NO: User don't want to customer the invite view themself, will using default action sheet UI, but can add some item in the action sheet via #array#. YES: will handled by Customer, Zoom will take no action after button clicked.
+ @brief The invite button in the UI has been clicked.
+ @param parentVC Parent viewcontroller used to present custom invite UI.
+ @param array <MobileRTCMeetingInviteActionItem *>Custom invitation actions to be added.
+ @return YES: The developer takes a custom action and the SDK does nothing. NO: The SDK still takes its default action.
  */
-- (BOOL)onClickedInviteButton:(UIViewController * _Nonnull)parentVC addInviteActionItem:(NSMutableArray * _Nullable)array;
+- (BOOL)onClickedInviteButton:(UIViewController * _Nonnull)parentVC addInviteActionItem:(NSMutableArray <MobileRTCMeetingInviteActionItem *>* _Nullable)array;
 
 /*!
- @brief Customize the audio button clicked event.
- @param parentVC Parent viewcontroller to present custom Invite UI.
- @return YES if user wants to custom the audio button clicked event, Otherwise NO, will use the default method.
+ @brief The audio button in the UI has been clicked.
+ @param parentVC Parent viewcontroller used to present custom audio UI.
+ @return YES: The developer takes a custom action and the SDK does nothing. NO: The SDK still takes its default action.
  */
 - (BOOL)onClickedAudioButton:(UIViewController * _Nonnull)parentVC;
 
 /*!
- @brief Custom the UI of Participants management.
- @param parentVC Parent viewcontroller to present custom Participants UI. 
+ @brief The participants button has been clicked.
+ @param parentVC Parent viewcontroller used to present custom participants UI.
+ @return YES: The developer takes a custom action and the SDK does nothing. NO: The SDK still takes its default action.
  */
 - (BOOL)onClickedParticipantsButton:(UIViewController * _Nonnull)parentVC;
 
 /*!
- @brief User needs to click the SHARE button in meeting.
- @return NO if user wants to custom Share Action Item, add items to Share ActionSheet via MobileRTCMeetingShareActionItem. Otherwise YES, user will use the default UI.
+ @brief The share button has been clicked.
+ @param parentVC Parent viewController used to present the custom share UI.
+ @return YES: The developer takes a custom action and the SDK does nothing. NO: The SDK still takes its default action.
+ NO if user wants to custom Share Action Item, add items to Share ActionSheet via MobileRTCMeetingShareActionItem. Otherwise YES, the user uses the default UI.
  */
-- (BOOL)onClickedShareButton:(UIViewController * _Nonnull)parentVC addShareActionItem:(NSMutableArray * _Nonnull)array;
+- (BOOL)onClickedShareButton:(UIViewController * _Nonnull)parentVC addShareActionItem:(NSMutableArray <MobileRTCMeetingShareActionItem *>* _Nonnull)array;
 
 /*!
- @brief Custom the UI of Leave Meeting Alert.
- @param parentVC Parent viewcontroller to present custom Participants UI.
- @param endButton The endButton.
+ @brief The meeting end button has been clicked.
+ @param parentVC Parent viewcontroller used to present custom Participants UI.
+ @param endButton The end button.
+ @return YES: The developer takes a custom action and the SDK does nothing. NO: The SDK still takes its default action.
  */
 - (BOOL)onClickedEndButton:(UIViewController * _Nonnull)parentVC endButton:(UIButton * _Nonnull)endButton;
 
 /*!
- @brief Notify users that there is no sharing for the moment.
+ @brief All active shares have stopped.
  */
 - (void)onOngoingShareStopped;
 
 /*!
- @brief Customize outgoing call interface.
- @param parentVC Parent viewcontroller to present outgoing call UI.
- @param me YES means to CALL ME; NO means INVITE BY PHONE.
+ @brief The dial out button has been clicked.
+ @param parentVC Parent viewcontroller used to present outgoing call UI.
+ @param me If YES, it is a call out. Otherwise, it is an invite by phone. For more information see https://support.zoom.us/hc/en-us/articles/360060596392-Enabling-or-disabling-call-me-and-invite-by-phone.
  */
 - (void)onClickedDialOut:(UIViewController * _Nonnull)parentVC isCallMe:(BOOL)me;
 
 /*!
- @brief Callback event that outgoing call status changes.  
- @param status Notify user the outgoing call status.
+ @brief The status of an outgoing call has changed.
+ @param status The new status.
  */
 - (void)onDialOutStatusChanged:(DialOutStatus)status;
 
 /*!
- @brief Callback event while calling H.323 device, and you should input the pairing code.
- @param state ZERO(0) means pairing successfully, otherwise failed.
- @param meetingNumber The meetng number
+ @brief The H.323 pairing code status has been updated and may require the end user to input their code
+ @param state The new paring state. See [MobileRTCH323ParingStatus].
+ @param meetingNumber The meetng number.
  */
 - (void)onSendPairingCodeStateChanged:(MobileRTCH323ParingStatus)state MeetingNumber:(unsigned long long)meetingNumber;
 
 /*!
- @brief Callback event when Room Device state changes. 
- @param state Notify user the status of calling Room Device.
+ @brief The room device state changed.
+ @param state The new state. See [H323CallOutStatus].
  */
 - (void)onCallRoomDeviceStateChanged:(H323CallOutStatus)state;
 
 /*!
- @brief Callback event of new message.
+ @brief An in-meeting chat message has been received.
  @param messageID The message ID.
  */
 - (void)onInMeetingChat:(NSString * _Nonnull)messageID;
 
 /*!
- @brief Chat message be deleted callback. This function is used to inform the user host/myself the message be deleted.
- @param msgID is the id of the deleted message.
- @param deleteBy Indicates by whom the message was deleted.
+ @brief A chat message has been deleted.
+ @param msgID The ID of the message that was deleted.
+ @param deleteBy Information about who deleted the message. See [MobileRTCChatMessageDeleteType].
  */
 - (void)onChatMsgDeleteNotification:(NSString *_Nonnull)msgID deleteBy:(MobileRTCChatMessageDeleteType)deleteBy;
 
 /*!
- @brief Callback event that live stream status changes. 
+ @brief The live stream status has changed.
+ @param liveStreamStatus The new status. See [MobileRTCLiveStreamStatus].
  */
 - (void)onLiveStreamStatusChange:(MobileRTCLiveStreamStatus)liveStreamStatus;
 
 /*!
- @brief Callback event that ZAK expired.
+ @brief The current user’s raw live streaming privilege has changed.
+ @param hasPrivilege Whether the user has privilege.
+ */
+- (void)onRawLiveStreamPrivilegeChanged:(BOOL)hasPrivilege;
+
+/*!
+ @brief The current user's request for raw live streaming privilege has timed out with no response.
+ */
+- (void)onRawLiveStreamPrivilegeRequestTimeout;
+
+/*!
+ @brief Another user’s raw live streaming privilege has changed.
+ @param userid The ID of the user whose privilege has changed.
+ @param hasPrivilege Whether the user has privilege.
+ */
+- (void)onUserRawLiveStreamPrivilegeChanged:(NSUInteger)userId hasPrivilege:(bool)hasPrivilege;
+
+/*!
+ @brief A user has requested raw live streaming privilege.
+ @param handler A pointer to the IRequestRawLiveStreamPrivilegeHandler. For more details, see [MobileRTCRequestRawLiveStreamPrivilegeHandler].
+ */
+- (void)onRawLiveStreamPrivilegeRequested:(MobileRTCRequestRawLiveStreamPrivilegeHandler*_Nullable)handler;
+
+/*!
+ @brief A user has starte or stopped raw live streaming.
+ @param liveStreamList A list of users with an active raw live stream.
+ */
+- (void)onUserRawLiveStreamingStatusChanged:(NSArray<MobileRTCRawLiveStreamInfo *>*_Nullable)liveStreamList;
+
+/*!
+ @brief The ZAK used to authorize the SDK has expired.
  */
 - (void)onZoomIdentityExpired;
 
 /*!
- @brief Callback event that user clicks the sharing screen.
- @param parentVC Parent viewcontroller to present the view of Sharing Screen Usage Guide.
- @waring Application will present Share Screen Usage Guide.
+ @brief The user has clicked the shared screen.
+ @param parentVC Parent viewcontroller used to present the view of Share Screen Usage Guide.
+ @warning Application presents Share Screen Usage Guide.
  */
 - (void)onClickShareScreen:(UIViewController * _Nonnull)parentVC;
 
 /*!
- @brief Callback event that user receives the Closed Caption.
- @param message the message of closed caption
- @param speakerID the speakerID of the closed caption
- @param msgTime the time of the close caption
+ @brief A closed caption message has been received. If the meeting supports multi-language transcription and the host set manual captioning to true, attendees must set translation language id to -1 to receive closed caption messages.
+ @param message The closed caption text.
+ @param speakerID The ID of the speaker.
+ @param msgTime The time of the close caption.
  */
 - (void)onClosedCaptionReceived:(NSString * _Nonnull)message speakerId:(NSUInteger)speakerID msgTime:(NSDate *_Nullable)msgTime;
 
 /*!
- @brief Callback event that waiting room status changes. 
+ @brief The waiting room status has changed.
  */
 - (void)onWaitingRoomStatusChange:(BOOL)needWaiting;
 
 /*!
-@brief The function will be invoked when the chat privilege of attendees changes.
-@param currentPrivilege The chat privilege of the current attendee.
-@warning only normal meeting(non webinar meeting) can get the callback.
+ @brief The chat privilege of attendees has changed.
+ @param currentPrivilege The new chat privilege. See [MobileRTCMeetingChatPriviledgeType].
+ @warning This callback is only invoked for meetings and not webinars.
 */
 - (void)onSinkAttendeeChatPriviledgeChanged:(MobileRTCMeetingChatPriviledgeType)currentPrivilege;
 
 /*!
-@brief Callback when subscribe fail.
-@param errorCode errorCode.
-@param size subscribe size.
-@param userId subscribe userId.
-@warning the call back only for Custom UI Mode.
+ @brief The chat privilege of panelists has changed.
+ @param privilege The new chat privilege. See [MobileRTCPanelistChatPrivilegeType].
+ @warning This callback is only invoked for webinars and not meetings.
+*/
+- (void)onSinkPanelistChatPrivilegeChanged:(MobileRTCPanelistChatPrivilegeType)privilege;
+
+/*!
+ @brief The subscription to a user's video has failed.
+ @param errorCode The error code. See {@MobileRTCSubscribeFailReason}.
+ @param size The subscription's size.
+ @param userId The ID of the user whose subscription failed.
+ @warning This is only invoked when custom UI mode is enabled.
 */
 - (void)onSubscribeUserFail:(MobileRTCSubscribeFailReason)errorCode size:(NSInteger)size userId:(NSUInteger)userId;
+
+/*!
+@brief Callback when host received the local recording request from participant.
+@param handler the host admit or decline the request through this handler.
+*/
+- (void)onRequestLocalRecordingPrivilegeReceived:(MobileRTCRequestLocalRecordingPrivilegeHandler * _Nullable)handler;
+
+/**
+* Callback event when a meeting is suspended.
+*/
+- (void)onSuspendParticipantsActivities;
+
+/**
+* Sink the event that lets participants start a video
+*
+* @param allow YES allow. if NO disallow
+*/
+- (void)onAllowParticipantsStartVideoNotification:(BOOL)allow;
+
+/**
+* Sink the event that lets participants rename them
+*
+* @param allow YES allow.If NO,participants may not rename themselves
+*/
+- (void)onAllowParticipantsRenameNotification:(BOOL)allow;
+
+/**
+* Sink the event that lets participants unmute them
+*
+* @param allow YES allow. If NO, participants may not unmute themselves
+*/
+- (void)onAllowParticipantsUnmuteSelfNotification:(BOOL)allow;
+
+/**
+* Sink the event that lets participants share a new white board
+*
+* @param  allow YES allow.if NO.participants may not share new white boards
+*/
+- (void)onAllowParticipantsShareWhiteBoardNotification:(BOOL)allow;
+
+/**
+ * Sink the event that lets participants allow to share
+ *
+ * @param allow YES allow.if NO.participants may not share
+ */
+- (void)onAllowParticipantsShareStatusNotification:(BOOL)allow;
+/**
+* Sink the event that allow a meeting lock status change
+*
+* @param isLock YES, the status is locked. If NO, the status is unlocked.
+*/
+- (void)onMeetingLockStatus:(BOOL)isLock;
 
 @end
 
 #pragma mark - MobileRTCAudioServiceDelegate
 /*!
  @protocol MobileRTCAudioServiceDelegate
- @brief An Audio Service will issue the following values when the meeting audio changes.
+ @brief Callbacks related to updates to in-meeting audio functionality for the current user's device and audio status of other users.
  */
 @protocol MobileRTCAudioServiceDelegate <MobileRTCMeetingServiceDelegate>
-
+@optional
 /*!
- @brief Callback event that the participant's audio status changes. 
- @param UserID The ID of user whose audio status changes.
+ @brief @brief A user's audio status has changed. To get their updated status, check [MobileRTCMeetingUserInfo.audioStatus] for the associated user.
+ @param UserID The ID of user whose audio status has changed.
  */
 - (void)onSinkMeetingAudioStatusChange:(NSUInteger)userID;
 
 /*!
- @brief Callback event that the audio type of the current user changes. 
+ @brief The audio type of the current user has changed.
  */
 - (void)onSinkMeetingMyAudioTypeChange;
 
 /*!
- @brief Callback event that the audio type of user changes.
+ @brief A user's audio type has changed. To get their updated type, check {@link MobileRTCMeetingUserInfo.audioStatus} for the associated user.
  @param UserID The ID of user whose audio type changes.
  */
 - (void)onSinkMeetingAudioTypeChange:(NSUInteger)userID;
 
 /*!
-@brief Callback event that the participant's audio status changes(include myself).
-@param UserID The ID of user whose audio status changes.
-@param audioStatus The audio status of user whose audio status changes.
+ @brief A user's audio status has changed.
+ @param UserID The ID of the user whose audio status has changed.
+ @param audioStatus The new audio status of the user.
 */
 - (void)onSinkMeetingAudioStatusChange:(NSUInteger)userID audioStatus:(MobileRTC_AudioStatus)audioStatus;
 
 /*!
- @brief Callback event that the output type of the current user's audio source changes. 
+ @brief The current user's audio output selection has changed.
  */
 - (void)onAudioOutputChange;
 
 /*!
- @brief Callback event that the audio state of the current user changes.
+ @brief The current user's audio state has changed.
  */
 - (void)onMyAudioStateChange;
 
 /*!
- @brief Callback event that the host require meeting attendants to enable microphone.
+ @brief The host has requested the current user to unmute their microphone.
  */
 - (void)onSinkMeetingAudioRequestUnmuteByHost;
 @end
@@ -347,92 +439,94 @@
 #pragma mark - MobileRTCVideoServiceDelegate
 /*!
  @protocol MobileRTCVideoServiceDelegate
- @brief A video service will issue the following values when the meeting video changes.
+ @brief Callbacks related to updates to in-meeting video functionality for the current user's device and video status of other users.
  */
 @protocol MobileRTCVideoServiceDelegate <MobileRTCMeetingServiceDelegate>
-
+@optional
 /*!
- @brief The function will be invoked once the active video status changes. 
- @param userID The ID of user whose video is active at present.
+ @brief The user being displayed in the active video view has changed.
+ @param userID The ID of user whose video is being displayed.
  */
 - (void)onSinkMeetingActiveVideo:(NSUInteger)userID;
 
+
 /*!
- @brief The function will be invoked once the participant's video status changes.
- @param userID The ID of user whose video status changes.
+ @brief A participant's video status has changed. To get their updated status, check {@link MobileRTCMeetingUserInfo.videoStatus} for the associated user.
+ @param userID The ID of the user whose video status has changed.
  */
 - (void)onSinkMeetingVideoStatusChange:(NSUInteger)userID;
 
 /*!
- @brief Callback event that my video state changes. 
+ @brief The current user's video status has changed.
  */
 - (void)onMyVideoStateChange;
 
 /*!
-@brief The function will be invoked once the participant's video status changes(include myself).
-@param userID The ID of user whose video status changes.
-@param videoStatus The video status of user whose video status changes.
-*/
+ @brief A participant's video status has changed.
+ @param userID The ID of the user whose video status has changed.
+ @param videoStatus The new video status of the user.
+ */
 - (void)onSinkMeetingVideoStatusChange:(NSUInteger)userID videoStatus:(MobileRTC_VideoStatus)videoStatus;
 
 /*!
- @brief Callback event that the video status of spotlight user changes. Spotlight user means that the view will show only the specified user and won't change even other speaks.
- @param on YES means spotlight hotspot; NO means spotlight falloff.
+ @brief The video status of a spotlit user has changed.
+ @param on Whether the user's video was turned on.
  */
 - (void)onSpotlightVideoChange:(BOOL)on;
 
 /*!
- @brief Callback event that the video spotlight user list changes. Spotlight user means that the view will show only the specified user and won't change even other speaks.
- @param spotlightedUserList spot light user list.
+ @brief The list of spotlit users has changed.
+ @param spotlightedUserList The users who are currently spotlit.
  */
-- (void)onSpotlightVideoUserChange:(NSArray <NSNumber *>* _Nonnull)spotlightedUserList;
+- (void)onSpotlightVideoUserChange:(NSArray <NSNumber *>* _Nullable)spotlightedUserList;
 
 /*!
- @brief Notify user that preview video is stopped by SDK. Usually the video will show the user himself when there is no other user joins.
- @waring The method MobileRTCPreviewVideoView will stop render, and App will adjust UI. Remove MobileRTCPreviewVideoView instance if it is necessary.
+ @brief The SDK has stopped the current user's video preview.
+ @warning When this is invoked, any instances of {@link MobileRTCPreviewVideoView} no longer render video and should be removed.
  */
 - (void)onSinkMeetingPreviewStopped;
 
 /*!
- @brief Callback event of active video changes when there is a new speaker. 
- @param userID UserID of new speaker.
+ @brief The active video user has changed.
+ @param userID The ID of the newly displayed user.
  */
 - (void)onSinkMeetingActiveVideoForDeck:(NSUInteger)userID;
 
 /*!
- @brief Notify that user's video quality changes.
- @param qality The quality of the video.
- @param userID The ID of user whose video is active at present.
+ @brief The video quality of a user has changed.
+ @param qality The user's new video quality. See {@link MobileRTCVideoQuality}.
+ @param userID The ID of the user whose video quality has changed.
  */
 - (void)onSinkMeetingVideoQualityChanged:(MobileRTCVideoQuality)qality userID:(NSUInteger)userID;
 
 /*!
- @brief Callback event that host requests to unmute the user's video. 
+ @brief The host has requested the current user to unmute their video.
  */
 - (void)onSinkMeetingVideoRequestUnmuteByHost:(void (^_Nonnull)(BOOL Accept))completion;
 
 /*!
- @brief Callback event that show minimize meeting or back zoom UI.
- @param state The state of minimizeMeeting or ZoomUIMeeting.
- @warning The call back only for ZoomUI, Custom UI will not be executed.
+ @brief The meeting UI has been minimized or returned to fullscreen.
+ @param state The new state of the meeting UI.
+ @warning This callback is only compatible with the default meeting UI. It is invoked if you are using a custom meeting UI
  */
 - (void)onSinkMeetingShowMinimizeMeetingOrBackZoomUI:(MobileRTCMinimizeMeetingState)state;
 
 /*!
- @brief Callback event of the video order changes.
- @param orderArr The video order array contains the user ID of listed users.
+ @brief The order of users' videos in gallery view has been changed by the host.
+ @param orderArr The updated order of user videos.
+ @warning This callback is only invoked if the host has enabled the "Follow Host's Video Order" setting.
  */
 - (void)onHostVideoOrderUpdated:(NSArray <NSNumber *>* _Nullable)orderArr;
 
 /*!
- @brief Callback event of the local video order changes.
- @param localOrderArr The lcoal video order list contains the user ID of listed users.
+ @brief The order of users' videos in gallery view has been changed locally.
+ @param localOrderArr The updated order of user videos.
  */
 - (void)onLocalVideoOrderUpdated:(NSArray <NSNumber *>* _Nullable)localOrderArr;
 
 /*!
- @brief Notification the status of following host's video order changed.
- @param follow Yes means the option of following host's video order is on, otherwise not.
+ @brief The host has enabled/disabled the "Follow Host's Video Order" setting.
+ @param follow If yes, the host has enabled the setting. Otherwise, it was disabled.
  */
 - (void)onFollowHostVideoOrderChanged:(BOOL)follow;
 
@@ -442,84 +536,71 @@
 #pragma mark - MobileRTCUserServiceDelegate
 /*!
  @protocol MobileRTCUserServiceDelegate
- @brief Callback event when the attendee's status changes. 
+ @brief The attendee's status changes.
  */
 @protocol MobileRTCUserServiceDelegate <MobileRTCMeetingServiceDelegate>
-
+@optional
 /*!
- @brief Callback event that the current user's hand state changes.
+ @brief The current user's hand state changes.
  */
 - (void)onMyHandStateChange;
 
 /*!
- @brief Callback event that the user state is updated in meeting.
+ @brief The user state is updated in the meeting.
  */
 - (void)onInMeetingUserUpdated;
 
 /*!
- @brief The function will be invoked once the user joins the meeting.
- @param userID The ID of user who joins the meeting.
+ @brief A user joins the meeting.
+ @param userID The ID of the user who joins the meeting.
  */
 - (void)onSinkMeetingUserJoin:(NSUInteger)userID;
 
 /*!
- @brief The function will be invoked once the user leaves the meeting.
- @param userID The ID of user who leaves the meeting.
+ @brief A user leaves the meeting.
+ @param userID The ID of the user who leaves the meeting.
  */
 - (void)onSinkMeetingUserLeft:(NSUInteger)userID;
 
 /*!
- @brief The function will be invoked once user raises hand.
- @param userID The ID of user who raises hand.
+ @brief A user raises their hand.
+ @param userID The ID of the user who raises their hand.
  */
 - (void)onSinkMeetingUserRaiseHand:(NSUInteger)userID;
 
 /*!
- @brief The function will be invoked once user lowers hand.
- @param userID The ID of user who lowers hand.
+ @brief A user lowers their hand.
+ @param userID The ID of the user who lowers their hand.
  */
 - (void)onSinkMeetingUserLowerHand:(NSUInteger)userID;
 
 /*!
- @brief Callback event of host or cohost lower all hands.
+ @brief A host or cohost lowers all hands.
  */
 - (void)onSinkLowerAllHands;
 
 /*!
- @brief The function will be invoked once user change the screen name.
- @param userID Specify the user ID whose user name changes.
- @param userName New screen name displayed.
- */
-- (void)onSinkUserNameChanged:(NSUInteger)userID userName:(NSString *_Nonnull)userName DEPRECATED_ATTRIBUTE;
-
-/*!
- @brief The function will be invoked once user change the screen name.
- @param userNameChangedArr Specify the user IDs whose user name changes.
- @warning The old interface virtual void '-(void)onSinkUserNameChanged:userName:' will be marked as deprecated, and will use this new callbacks. This is because in a webinar, when the host renamed an attendee, only the attendee could receive the old callback, and the host/cohost/panlist is not able to receive it, which leads to the developer not being able to update the UI.
+ @brief A user changes their screen name.
+ @param userNameChangedArr The user IDs whose user name(s) changed.
+ @warning The old interface virtual void '-(void)onSinkUserNameChanged:userName:' is marked as deprecated, and uses this new callback. This is because in a webinar, when the host renames an attendee, only the attendee could receive the old callback. The host/cohost/panlist is not able to receive it, which leads to the developer not being able to update the UI.
  */
 - (void)onSinkUserNameChanged:(NSArray <NSNumber *>* _Nullable)userNameChangedArr;
 
 /*!
- @brief Notify user that meeting host changes.
- @param hostId The user ID of host.
+ @brief The meeting host changes.
+ @param hostId The new host's user ID.
  */
 - (void)onMeetingHostChange:(NSUInteger)hostId;
 
 /*!
- @brief Callback event that co-host changes.
- @param cohostId The user ID of co-host.
- */
-- (void)onMeetingCoHostChange:(NSUInteger)cohostId DEPRECATED_ATTRIBUTE;
-
-/*!
- @brief Callback event that co-host changes.
- @param userID The user ID of co-host.
- @param isCoHost indicate the user(userID) be assigned to cohost or be remove cohost.
+ @brief The meeting co-host changes.
+ @param userID The new co-host's user ID.
+ @param isCoHost Indicates the user (userID) be assigned to co-host or be remove co-host.
  */
 - (void)onMeetingCoHostChange:(NSUInteger)userID isCoHost:(BOOL)isCoHost;
 
 /*!
- @brief Callback event that user claims the host.
+ @brief A user claims the host.
  */
 - (void)onClaimHostResult:(MobileRTCClaimHostError)error;
 @end
@@ -527,47 +608,32 @@
 #pragma mark - MobileRTCShareServiceDelegate
 /*!
  @protocol MobileRTCShareServiceDelegate
- @brief Callback event when the meeting sharing status changes.
+ @brief The meeting sharing status changes.
  */
 @protocol MobileRTCShareServiceDelegate <MobileRTCMeetingServiceDelegate>
-
+@optional
 /*!
- @brief Callback event of starting a meeting by sharing.
+ @brief A meeting starts by sharing.
  */
 - (void)onAppShareSplash;
 
 /*!
- @brief Callback event when the share starts.
- @param userID The user ID of presenter.
- @warning userID == 0, which means that the user stopped sharing.
- @deprecated replace with {@link onSinkSharingStatus:userID:}
- */
-- (void)onSinkMeetingActiveShare:(NSUInteger)userID DEPRECATED_ATTRIBUTE;
-
-/*!
- @brief Callback event when the sharing content changes.
- @param userID The user ID of presenter.
- @deprecated replace with {@link onSinkSharingStatus:userID:}
- */
-- (void)onSinkMeetingShareReceiving:(NSUInteger)userID DEPRECATED_ATTRIBUTE;
-
-/*!
- @brief Callback event when the share status changed.
+ @brief The share status changes.
  @param status Sharing status.
  @param userID Specify the user ID whose share status changes.
 */
 - (void)onSinkSharingStatus:(MobileRTCSharingStatus)status userID:(NSUInteger)userID;
 
 /*!
- @brief Callback event when the sharing settings changes.
+ @brief The sharing settings change.
  @param shareSettingType The share setting type of current meeting.
  */
 - (void)onSinkShareSettingTypeChanged:(MobileRTCShareSettingType)shareSettingType;
 
 
 /*!
- @brief Callback event when presenter resizes the sharing content. 
- @param userID New size of the shared content and UserID
+ @brief The presenter resizes the sharing content.
+ @param userID New size of the shared content and user ID.
  */
 - (void)onSinkShareSizeChange:(NSUInteger)userID;
 
@@ -579,99 +645,148 @@
  @brief Callback event when the Interpretaion status change.
  */
 @protocol MobileRTCInterpretationServiceDelegate <MobileRTCMeetingServiceDelegate>
-
 @optional
 
 /*!
- @brief interpretation start callback. This function is used to inform the user interpretation has been started, and all users in meeting can get the event.
+ @brief Interpretation starts. Informs the user that interpretation has been started. All users in the meeting get the event.
 */
 - (void)onInterpretationStart;
 
 /*!
- @brief interpretation stop callback. This function is used to inform the user interpretation has been stopped, and all users in meeting can get the event.
+ @brief Interpretation stops. Informs the user that interpretation has been stopped. All users in the meeting get the event.
 */
 - (void)onInterpretationStop;
 
 /*!
- @brief interpreter list changed callback. when some interpreter leave meeting or preset interpreter join meeting, and only host can get the event.
+ @brief The meeting's interpreter list changes. When one or more interpreters leave or a preset interpreter joins. Only the host gets the event.
 */
 - (void)onInterpreterListChanged;
 
 /*!
- @brief interpreter role changed callback. when a user's role changed(participant <-> interpreter), and all users in meeting can get the event.
+ @brief Interpreter role changes. When a user's role changed (participant <-> interpreter), all users in meeting get the event.
  @param userID Specify the user ID whose status changed.
- @param isInterpreter Specify the user's role is interpreter or not.
+ @param isInterpreter Specify if user's role is interpreter or not.
 */
 - (void)onInterpreterRoleChanged:(NSUInteger)userID isInterpreter:(BOOL)isInterpreter;
 
 /*!
- @brief interpreter active language changed callback. when a interpreter's active language changed, and all users in meeting can get the event.
+ @brief interpreter active language changed callback. When a interpreter's active language changes, all users in meeting get the event.
  @param userID Specify the user ID whose active language changed.
- @param activeLanID Specify the interpreter current active language id.
+ @param activeLanID Specify the interpreter current active language ID.
 */
 - (void)onInterpreterActiveLanguageChanged:(NSInteger)userID activeLanguageId:(NSInteger)activeLanID;
 
 /*!
- @brief interpreter languages changed callback. when a interpreter's languages changed, and only the interpreter can get the event.
+ @brief interpreter languages changed callback. When a interpreter's languages changed, only the interpreter can get the event.
  @param lanID1 Specify the new language ID1.
  @param lanID2 Specify the new language ID2.
 */
 - (void)onInterpreterLanguageChanged:(NSInteger)lanID1 andLanguage2:(NSInteger)lanID2;
 
 /*!
- @brief available languages changed callback. when available languages in meeting are changed, all non interpreter users in meeting can get the event.
+ @brief available languages changed callback. When available languages in meeting are changed, all non-interpreter users in a meeting get the event.
  @param availableLanguageList Specify the available languages list.
 */
 - (void)onAvailableLanguageListUpdated:(NSArray <MobileRTCInterpretationLanguage *> *_Nullable)availableLanguageList;
 
+/*!
+ @brief Indicates a change in the list of available languages that interpreters can hear. When the list of available languages that interpreters can hear in a meeting changes, all interpreters in the meeting get this event.
+ @param interpreterAvailableListenLanList The list of available languages that interpreters can hear.
+*/
+- (void)onInterpreterLanguagesUpdated:(NSArray <MobileRTCInterpretationLanguage *> *_Nullable)availableLanguages;
+
 @end
+
+@protocol MobileRTCSignInterpretationServiceDelegate <MobileRTCMeetingServiceDelegate>
+@optional
+/*!
+ @brief Sign interpretation staus change callback. Informs the user that sign interpretation has been started or stopped. All users in meeting can get the event.
+ @param status Specify current sign interpretation status.
+ */
+- (void)onSignInterpretationStatusChange:(MobileRTCSignInterpretationStatus)status;
+
+/*!
+ @brief Sign interpreter list changed callback. Informs the host that some interpreter left meeting or a preset interpreter joined meeting, or host add or remove interpreter. Only the host can get the event.
+ */
+- (void)onSignInterpreterListChanged;
+
+/*!
+ @brief Indicate when a user's role changed (participant <-> interpreter). Only that specific user gets the event.
+ */
+- (void)onSignInterpreterRoleChanged;
+
+/*!
+ @brief Indicate when a sign interpreter's languages changed. Only the sign interpreter can get the event.
+ */
+- (void)onSignInterpreterLanguageChanged;
+
+/*!
+ @brief Indicate when available sign languages in a meeting change. All users in the meeting can get the event.
+ @param availableSignLanguageList Specify the available sign languages list. For more details, see {@link ZoomSDKSignInterpretationLanguageInfo} object.
+ */
+- (void)onAvailableSignLanguageListUpdated:(NSArray<MobileRTCSignInterpreterLanguage *> *_Nullable)availableSignLanguageList;
+
+/*!
+ @brief Callback event of the requirement to unmute the audio from the host.
+ @param handler A pointer to the ZoomSDKSignInterpterToTalkHander. For more details, see {@link ZoomSDKSignInterpterToTalkHander} object.
+ */
+- (void)onRequestSignInterpreterToTalk;
+
+/*!
+ @brief Callback event for the user talk privilege changed. When the interpreter role changed, host changed, host allow or disallow interpreter talk, this will be triggered, and only the sign interpreter itself can get the event.
+ @param hasPrivilege Specify whether the user has talk privilege or not
+ */
+- (void)onTalkPrivilegeChanged:(BOOL)hasPrivilege;
+
+@end
+
 
 #pragma mark - MobileRTCWebinarServiceDelegate
 /*!
  @protocol MobileRTCWebinarServiceDelegate
- @brief Callback event when the Webinar changes.
+ @brief Indicates when the Webinar changes.
  */
 @protocol MobileRTCWebinarServiceDelegate <MobileRTCMeetingServiceDelegate>
-
+@optional
 /*!
- @brief Callback event when Question and Answer(Q&A) conneAnswerction starts.
+ @brief Indicates when Question and Answer (Q&A) connection starts
  */
 - (void)onSinkQAConnectStarted;
 
 /*!
- @brief Callback event when Q&A is connected/disconnected.
- @param connected The flag of Q&A is connected/disconnected.
+ @brief Callback event when Q&A is connected or disconnected.
+ @param connected The flag of Q&A is connected ordisconnected.
  */
 - (void)onSinkQAConnected:(BOOL)connected;
 
 /*!
  @brief Callback event when the open-ended question changes.
- @param count The amount of open-ended questions.
+ @param count The count of open-ended questions.
  */
 - (void)onSinkQAOpenQuestionChanged:(NSInteger)count;
 
 /*!
- @brief Callback event when add a new question.
- @param questionID question id.
- @param success success or not.
+ @brief Callback event when adding a new question.
+ @param questionID The question ID.
+ @param success Successful or not.
  */
 - (void)onSinkQAAddQuestion:(NSString *_Nonnull)questionID success:(BOOL)success;
 
 /*!
- @brief Callback event when add a new answer.
- @param answerID answer user id.
- @param success success or not.
+ @brief Callback event when adding a new answer.
+ @param answerID The answer user ID.
+ @param success Successful or not.
  */
 - (void)onSinkQAAddAnswer:(NSString *_Nonnull)answerID success:(BOOL)success;
 
 /*!
- @brief Callback event when the new question is marked as dismissed.
+ @brief Callback event when a new question is marked as dismissed.
  @param questionID The question ID.
  */
 - (void)onSinkQuestionMarkedAsDismissed:(NSString *_Nonnull)questionID;
 
 /*!
- @brief Callback event when the question is opened.
+ @brief Callback event when a question is opened.
  @param questionID The question ID.
  */
 - (void)onSinkReopenQuestion:(NSString *_Nonnull)questionID;
@@ -689,162 +804,216 @@
 - (void)onSinkReceiveAnswer:(NSString *_Nonnull)answerID;
 
 /*!
- @brief Callback event when the question is living reply.
+ @brief Callback event when the question is replied to live.
  @param questionID The question ID.
  */
 - (void)onSinkUserLivingReply:(NSString *_Nonnull)questionID;
 
 /*!
- @brief Callback event when the question end living reply.
+ @brief Callback event when the question live reply ends.
  @param questionID The question ID.
  */
 - (void)onSinkUserEndLiving:(NSString *_Nonnull)questionID;
 
 /*!
- @brief Callback event when the question is upvote.
+ @brief Callback event when the question is upvoted.
  @param questionID The question ID.
- @param order_changed order change
+ @param order_changed Order changed.
  */
 - (void)onSinkVoteupQuestion:(NSString *_Nonnull)questionID orderChanged:(BOOL)orderChanged;
 
 /*!
- @brief Callback event when the question is revoke upvote.
+ @brief Callback event when the question upvote is revoked.
  @param questionID The question ID.
- @param order_changed order change
+ @param order_changed Order changed.
  */
 - (void)onSinkRevokeVoteupQuestion:(NSString *_Nonnull)questionID orderChanged:(BOOL)orderChanged;
 
 /*!
-@brief Callback event when delete question.
-@param questionIDArray The questionIDs.
+ @brief Callback event when a question is deleted.
+ @param questionIDArray The question IDs.
 */
-- (void)onSinkDeleteQuestion:(NSArray *_Nonnull)questionIDArray;
+- (void)onSinkDeleteQuestion:(NSArray <NSString *>*_Nonnull)questionIDArray;
 
 /*!
-@brief Callback event when delete answer.
-@param answerIDArray The answerIDs.
+ @brief Callback event when an answer is deleted.
+ @param answerIDArray The answer IDs.
 */
-- (void)onSinkDeleteAnswer:(NSArray *_Nonnull)answerIDArray;
+- (void)onSinkDeleteAnswer:(NSArray <NSString *>*_Nonnull)answerIDArray;
 
 /*!
- @brief Callback event of the permission that user is allowed to ask questions anonymously is changed.
- @param beAllowed YES means that user can ask question anonymously, otherwise not.
+ @brief Callback event of the permission change to allow users to ask questions anonymously.
+ @param beAllowed YES means that user can ask question anonymously. Otherwise, they cannot.
  */
 - (void)onSinkQAAllowAskQuestionAnonymouslyNotification:(BOOL)beAllowed;
 
 /*!
- @brief Callback event of the permission that attendee is allowed to view all questions is changed.
- @param beAllowed YES means that user can view all questions, otherwise not.
+ @brief Callback event of the permission change that allows the attendee to view all questions.
+ @param beAllowed YES means that user can view all questions. Otherwise, they cannot.
  */
 - (void)onSinkQAAllowAttendeeViewAllQuestionNotification:(BOOL)beAllowed;
 
 /*!
- @brief Callback event of the permission that attendee is allowed to submit questions is changed.
- @param beAllowed YES means that the user can submit questions, otherwise not.
+ @brief Callback event of the permission change that allows the attendee to submit questions.
+ @param beAllowed YES means that the user can submit questions. Otherwise, they cannot.
  */
 - (void)onSinkQAAllowAttendeeUpVoteQuestionNotification:(BOOL)beAllowed;
 
 /*!
- @brief Callback event of the permission that user is allowed to answer questions is changed.
- @param beAllowed YES means that user can answer question, otherwise not.
+ @brief Callback event of the permission change that allows the user to answer questions.
+ @param beAllowed YES means that user can answer questions. Otherwise, they cannot.
  */
 - (void)onSinkQAAllowAttendeeAnswerQuestionNotification:(BOOL)beAllowed;
 
 /*!
- @brief Callback event that user joins a webinar which requires manual approval.
+ @brief Callback event that a user joins a webinar which requires manual approval.
  @param registerURL The register URL.
  */
 - (void)onSinkWebinarNeedRegister:(NSString * _Nonnull)registerURL;
 
 /*!
- @brief Callback event that user joins a webinar which requires username and email.
+ @brief Callback event that a user joins a webinar which requires username and email.
  @param completion User needs to provide username and email to join meeting or cancel the join action.
- @warning In ZoomUI mode, user can implement this method to avoid Zoom's UI shown. Not implement this method, will shown the Zoom's UI.
+ @warning In ZoomUI mode, user can implement this method to avoid Zoom's UI shown. If not implementing this method, Zoom's UI is shown.
  */
 - (void)onSinkJoinWebinarNeedUserNameAndEmailWithCompletion:(BOOL (^_Nonnull)(NSString * _Nonnull username, NSString * _Nonnull email, BOOL cancel))completion;
 
 /*!
- @brief The function will be invoked once the amount of panelist exceed the upper limit.
+ @brief Invoke this function once the number of panelists exceeds the upper limit.
  */
 - (void)onSinkPanelistCapacityExceed;
 
 /*!
- @brief The function will be invoked once the amount of the attendee is promoted successfully from attendee to panelist.
+ @brief Invoke this function once a given number of attendees are promoted successfully from attendee to panelist.
  @param errorCode Promotion successful or error type.
- @warning Only meeting host/co-host can get the callback.
+ @warning Only the meeting host or co-host can get the callback.
  */
 - (void)onSinkPromptAttendee2PanelistResult:(MobileRTCWebinarPromoteorDepromoteError)errorCode;
 
 /*!
- @brief The function will be invoked when panelist is demoted successfully from panelist to attendee.
+ @brief Invoke this function when panelist is demoted successfully from panelist to attendee.
  @param errorCode Demotion successful or error type.
  @warning Only meeting host/co-host can get the callback.
  */
 - (void)onSinkDePromptPanelist2AttendeeResult:(MobileRTCWebinarPromoteorDepromoteError)errorCode;
 
 /*!
- @brief The function will be invoked when the chat privilege of attendees changes.
+ @brief Invoke this function when the chat privilege of attendees changes.
  @param currentPrivilege The chat privilege of the current attendee.
- @warning only webinar meeting can get the callback.
+ @warning Only webinar meeting can get the callback.
  */
 - (void)onSinkAllowAttendeeChatNotification:(MobileRTCChatAllowAttendeeChat)currentPrivilege;
 
 /*!
- @brief When attendee agree or decline the promote invitation, host will receive this callback.
- @param agree, if attendee agree return true, otherwise false.
- @param userid, The attendee user id.
+ @brief When attendee agrees or declines the promote invitation, the host receives this callback.
+ @param agree, If attendee agrees, return true. Otherwise, return false.
+ @param userid, The attendee user ID.
  */
 - (void)onSinkAttendeePromoteConfirmResult:(BOOL)agree userId:(NSUInteger)userId;
 
 /*!
-@brief The function will be invoked when attendde allow to talk.
+ @brief Invoke this function when the attendee is allowed to talk.
 */
 - (void)onSinkSelfAllowTalkNotification;
 
 /*!
-@brief The function will be invoked when attendde disallow to talk.
+ @brief Invoke this function when the attendee is not allowed to talk.
 */
 - (void)onSinkSelfDisallowTalkNotification;
+
+/*!
+ @brief Invoke this function when the attendee is allow or not allow to using reaction.
+ @param canReaction If the Reaction is allowed, the result is YES, otherwise NO.
+*/
+- (void)onAllowWebinarReactionStatusChanged:(BOOL)canReaction;
+
+/*!
+ @brief Invoke this function when the attendee is allow or not allow to using raise hand.
+ @param canReaction If the raise hand is allowed, the result is YES, otherwise NO.
+*/
+- (void)onAllowAttendeeRaiseHandStatusChanged:(BOOL)canRaiseHand;
+
+/*!
+ @brief Invoke this function when the attendee is allow to view the participant count.
+ @param canViewParticipantCount If the view participant is allowed, the result is YES, otherwise NO.
+*/
+- (void)onAllowAttendeeViewTheParticipantCountStatusChanged:(BOOL)canViewParticipantCount;
 @end
 
 /*!
-@brief The function will be invoked when attendde disallow to talk.
+ @brief Invoke this function when the attendee is not allowed to talk.
 */
 @protocol MobileRTCLiveTranscriptionServiceDelegate <MobileRTCMeetingServiceDelegate>
-
 @optional
+
+/**
+ * @brief Sink the event of captions enabled status changed.
+ * @param enable True means the host enables the captions, otherwise means the host disables the captions.
+ */
+- (void)onCaptionStatusChanged:(BOOL)enable;
+
 /*!
-@brief Sink the event of live transcription status.
-@param status the live transcription status. For more details, see MobileRTCLiveTranscriptionStatus
+ @brief Sink the event of live transcription status.
+ @param status The live transcription status. For more details, see MobileRTCLiveTranscriptionStatus
 */
 - (void)onSinkLiveTranscriptionStatus:(MobileRTCLiveTranscriptionStatus)status;
 
 /*!
-@brief Sink the event of receive the live transcription msg.
-@param msg the received live transcription msg.
-@param speakerId the speaker id of the received live transcription msg.
-@param type the live transcription operation type, For more details, see MobileRTCLiveTranscriptionOperationType.
+ @brief Sink the event of receive the live transcription message.
+ @param msg The received live transcription message.
+ @param speakerId The speaker ID of the received live transcription message.
+ @param type The live transcription operation type. For more details, see MobileRTCLiveTranscriptionOperationType.
 */
 - (void)onSinkLiveTranscriptionMsgReceived:(NSString *_Nonnull)msg speakerId:(NSUInteger)speakerId type:(MobileRTCLiveTranscriptionOperationType)type;
 
 /*!
-@brief Sink the event of request for start the live transcription. Only The HOST can retrieve this callback. You can aprrove request call start live transcription, or decline as do nothing.
-@param requesterUserId the userid of the request from. If bAnonymous is TRUE, requesterUserId has no meanings.
-@param bAnonymous TRUE means the request is anonymous.
+ @brief Translation message error callback.
+ @param speakingLanguage: an object of the speak message language.
+ @param translationLanguage: an object of the message language you want to translate.
+ */
+- (void)onLiveTranscriptionMsgError:(MobileRTCLiveTranscriptionLanguage * _Nullable)speakLanguage
+                 transcriptLanguage:(MobileRTCLiveTranscriptionLanguage * _Nullable)transcriptLanguage;
+
+/*!
+ @brief Sink the event of request for start the live transcription. Only the host can retrieve this callback. You can approve request call start live transcription, or decline as do nothing.
+ @param requesterUserId The user ID of the request from. If bAnonymous is TRUE, requesterUserId has no meaning.
+ @param bAnonymous TRUE means the request is anonymous.
 */
 - (void)onSinkRequestForLiveTranscriptReceived:(NSUInteger)requesterUserId bAnonymous:(BOOL)bAnonymous;
 
 @end
 
+/*!
+@brief Invoke this function when using a 3D avatar.
+*/
+@protocol MobileRTC3DAvatarDelegate <MobileRTCMeetingServiceDelegate>
+@optional
+/*!
+ @brief Callback event to notify that all 3D avatar items' thumbnails have been download.
+*/
+- (void)on3DAvatarItemThumbnailsDownloaded;
+
+/*!
+ @brief Callback event to notify that the selected 3D avatar item is downloading.
+ @param index The index of the selected 3D avatar item.
+*/
+- (void)on3DAvatarItemDataDownloading:(int)index;
+
+/*!
+ @brief Callback event to notify whether the selected 3D avatar item has been downloaded successfully.
+ @param index The index of the selected 3D avatar item.
+ @param success Yes indicates the selected 3D avatar item has been downloaded successfully.
+*/
+- (void)on3DAvatarItemDataDownloaded:(bool)success andIndex:(int)index;
+@end
 #pragma mark - MobileRTCCustomizedUIMeetingDelegate
 /*!
  @protocol MobileRTCCustomizedUIMeetingDelegate
  @brief The class that conform to the MobileRTCCustomizedUIMeetingDelegate protocol can provide
-        methods for tracking the In-Meeting Event and determining policy for each Event.
+        methods for tracking the In-Meeting Event and determining policy for each event.
  @discussion The MobileRTCCustomizedUIMeetingDelegate protocol is required in the custom meeting UI view.
  */ 
 @protocol MobileRTCCustomizedUIMeetingDelegate <NSObject>
-
 @required
 /*!
  @brief Notify user to create a custom in-meeting UI. 
@@ -866,7 +1035,6 @@
  @discussion The MobileRTCVideoRawDataDelegate protocol is required in the custom meeting UI view.
  */
 @protocol MobileRTCVideoRawDataDelegate <NSObject>
-
 @optional
 
 /*!
@@ -899,38 +1067,65 @@
 #pragma mark - MobileRTCAudioRawDataDelegate
 /*!
  @protocol MobileRTCAudioRawDataDelegate
- @brief This class is used to receive audio raw data.
+ @brief Receive audio raw data.
  @discussion The MobileRTCAudioRawDataDelegate protocol is required in the custom meeting UI view.
  */
 @protocol MobileRTCAudioRawDataDelegate <NSObject>
-
 @optional
 
 /*!
- @brief This method is used to receive audio mixed raw data.
- @param rawData Audio's raw data.
+ @brief Receive mixed raw audio data.
+ @param rawData Raw audio data.
  */
 - (void)onMobileRTCMixedAudioRawData:(MobileRTCAudioRawData *_Nonnull)rawData;
 
 /*!
- @brief This method is used to receive each road user audio raw data.
- @param rawData Audio's raw data.
+ @brief Receive each road user raw audio data.
+ @param rawData Raw audio data.
  */
 - (void)onMobileRTCOneWayAudioAudioRawData:(MobileRTCAudioRawData *_Nonnull)rawData userId:(NSUInteger)userId;
 @end
 
+#pragma mark - MobileRTCAudioSourceDelegate
+/*!
+ @protocol MobileRTCAudioSourceDelegate
+ @brief Send your own raw audio data.
+ @discussion The MobileRTCAudioSourceDelegate protocol is required in the custom meeting UI view.
+*/
+@protocol MobileRTCAudioSourceDelegate <NSObject>
+@optional
+
+/*!
+ @brief Virtual audio source to do some initialization.
+ @param rawdataSender A pointer of audio sender object.
+ */
+- (void)onDeviceInitialize:(MobileRTCAudioSender *_Nonnull)rawdataSender;
+/*!
+ @brief The virtual audio source can send raw data with 'rawdataSender'.
+ */
+- (void)onStartSendData;
+/*!
+ @brief The virtual audio source should stop sending raw data.
+ */
+- (void)onStopSendData;
+/*!
+ @brief Virtual audio source is uninitialized.
+ */
+- (void)onDeviceUninitialize;
+
+@end
+
 #pragma mark - MobileRTCPreProcessorDelegate
 /*!
-@protocol MobileRTCPreProcessorDelegate
-@brief This class is used to preprocess rawdata data before rendering.
-@discussion The MobileRTCPreProcessorDelegate protocol is required in the custom meeting UI view.
+ @protocol MobileRTCPreProcessorDelegate
+ @brief Preprocess raw data data before rendering.
+ @discussion The MobileRTCPreProcessorDelegate protocol is required in the custom meeting UI view.
 */
 @protocol MobileRTCPreProcessorDelegate <NSObject>
-
 @optional
 /*!
-@brief This callback is used to preprocess video's YUV420 data before rendering receive.
-@param rawData Video's YUV420 data.
+ @brief Preprocess video's YUV420 data before rendering receive.
+ @param rawData Video's YUV420 data.
 */
 - (void)onPreProcessRawData:(MobileRTCPreProcessRawData *_Nonnull)rawData;
 
@@ -938,43 +1133,62 @@
 
 #pragma mark - MobileRTCVideoSourceDelegate
 /*!
-@protocol MobileRTCVideoSourceDelegate
-@brief This class is used to send your own video rawdata.
-@discussion The MobileRTCVideoSourceDelegate protocol is required in the custom meeting UI view.
+ @protocol MobileRTCVideoSourceDelegate
+ @brief Send your own raw video data.
+ @discussion The MobileRTCVideoSourceDelegate protocol is required in the custom meeting UI view.
 */
 @protocol MobileRTCVideoSourceDelegate <NSObject>
-
 @optional
 /*!
-@brief This callback is used to send data for initialization.
-@param rawDataSender please See MobileRTCVideoSender.
-@param supportCapabilityArray support capability list.
-@param suggestCapabilityItem suggest capability.
+ @brief Send data for initialization.
+ @param rawDataSender See MobileRTCVideoSender.
+ @param supportCapabilityArray Support capability list.
+ @param suggestCapabilityItem Suggest capability.
 */
-- (void)onInitialize:(MobileRTCVideoSender *_Nonnull)rawDataSender supportCapabilityArray:(NSArray *_Nonnull)supportCapabilityArray suggestCapabilityItem:(MobileRTCVideoCapabilityItem *_Nonnull)suggestCapabilityItem;
+- (void)onInitialize:(MobileRTCVideoSender *_Nonnull)rawDataSender supportCapabilityArray:(NSArray <MobileRTCVideoCapabilityItem *>*_Nonnull)supportCapabilityArray suggestCapabilityItem:(MobileRTCVideoCapabilityItem *_Nonnull)suggestCapabilityItem;
 
 /*!
-@brief This callback is used to send data for initialization.
-@param rawDataSender please See MobileRTCVideoSender.
-@param supportCapabilityArray support capability list.
-@param suggestCapabilityItem suggest capability.
+ @brief Send data for initialization.
+ @param rawDataSender See MobileRTCVideoSender.
+ @param supportCapabilityArray Support capability list.
+ @param suggestCapabilityItem Suggest capability.
 */
-- (void)onPropertyChange:(NSArray *_Nonnull)supportCapabilityArray suggestCapabilityItem:(MobileRTCVideoCapabilityItem *_Nonnull)suggestCapabilityItem;
+- (void)onPropertyChange:(NSArray <MobileRTCVideoCapabilityItem *>*_Nonnull)supportCapabilityArray suggestCapabilityItem:(MobileRTCVideoCapabilityItem *_Nonnull)suggestCapabilityItem;
 
 /*!
-@brief This callback is used to start send data.
+ @brief Start send data.
 */
 - (void)onStartSend;
 
 /*!
-@brief This callback is used to stop send data.
+ @brief Stop send data.
 */
 - (void)onStopSend;
 
 /*!
-@brief This callback is used to uninitialize send data.
+ @brief Uninitialize send data.
 */
 - (void)onUninitialized;
+
+@end
+
+#pragma mark - MobileRTCVideoSourceDelegate
+/*!
+ @protocol MobileRTCVideoSourceDelegate
+ @brief Send your own share raw data.
+*/
+@protocol MobileRTCShareSourceDelegate <NSObject>
+@optional
+/*!
+ @brief Notify to start send share source.
+ @param sender The object of MobileRTCShareSender to send share source.
+ */
+- (void)onStartSend:(MobileRTCShareSender *_Nonnull)sender;
+
+/*!
+ @brief Notify to stop send share source.
+ */
+- (void)onStopSend;
 
 @end
 
@@ -986,25 +1200,25 @@
 
 /*!
  @protocol MobileRTCSMSServiceDelegate
- @brief This class is use to retrive and verify SMS.
+ @brief Retrieve and verify SMS.
  */
 @protocol MobileRTCSMSServiceDelegate <NSObject>
 @optional
 
 /*!
- @brief This method will notify support country list for send SMS, privacy url, send SMS handle.
+ @brief Notify support country list for send SMS, privacy URL, and send SMS handle.
  @param supportCountryList, privacyUrl, retrieveHandle
  */
 - (void)onNeedRealNameAuth:(NSArray<MobileRTCRealNameCountryInfo *> * _Nonnull)supportCountryList privacyURL:(NSString * _Nonnull)privacyUrl retrieveHandle:(MobileRTCRetrieveSMSHandler * _Nonnull)handle;
 
 /*!
- @brief This method will notify the result of send SMS, and verify SMS handle.
+ @brief Notify the result of send SMS, and verify SMS handle.
  @param result, verifyHandle
  */
 - (void)onRetrieveSMSVerificationCodeResultNotification:(MobileRTCSMSRetrieveResult)result verifyHandle:(MobileRTCVerifySMSHandler * _Nonnull)handler;
 
 /*!
- @brief This method will notify the result verify SMS.
+ @brief Notify the result verify SMS.
  @param result of verify SMS.
  */
 - (void)onVerifySMSVerificationCodeResultNotification:(MobileRTCSMSVerifyResult)result;
@@ -1013,116 +1227,128 @@
 
 #pragma mark - MobileRTCBOServiceDelegate
 @protocol MobileRTCBOServiceDelegate <MobileRTCMeetingServiceDelegate>
-
 @optional
 /*!
-@brief This method will notify the creator role gived.
-@param creator the creator role gived.
+ @brief Notify that the creator role is given.
+ @param creator the creator role is given.
 */
 - (void)onHasCreatorRightsNotification:(MobileRTCBOCreator *_Nonnull)creator;
 
 /*!
-@brief This method will notify the admin role gived.
-@param admin the admin role gived.
+ @brief Notify that the admin role is given.
+ @param admin The admin role is given.
 */
 - (void)onHasAdminRightsNotification:(MobileRTCBOAdmin * _Nonnull)admin;
 
 /*!
-@brief This method will notify the assistent role gived.
-@param assistant the assistant role gived.
+ @brief Notify that the assistant role is given.
+ @param assistant The assistant role is given.
 */
 - (void)onHasAssistantRightsNotification:(MobileRTCBOAssistant * _Nonnull)assistant;
 
 /*!
-@brief This method will notify the attendee role gived.
-@param attendee the attendee role gived.
+ @brief Notify that the attendee role is given.
+ @param attendee The attendee role is given.
 */
 - (void)onHasAttendeeRightsNotification:(MobileRTCBOAttendee * _Nonnull)attendee;
 
 /*!
-@brief This method will notify the data helper role gived.
-@param dataHelper the data helper role gived.
+ @brief Notify that the data helper role is given.
+ @param dataHelper The data helper role is given.
 */
 - (void)onHasDataHelperRightsNotification:(MobileRTCBOData * _Nonnull)dataHelper;
 
 /*!
-@brief This method will notify that lost creator role.
+ @brief A lost creator role notification.
 */
 - (void)onLostCreatorRightsNotification;
 
 /*!
-@brief This method will notify that lost admin role.
+ @brief A lost admin role notification.
 */
 - (void)onLostAdminRightsNotification;
 
 /*!
-@brief This method will notify that lost assistant role.
+ @brief A lost assistant role notification.
 */
 - (void)onLostAssistantRightsNotification;
 
 /*!
-@brief This method will notify that lost attendee role.
+ @brief A lost attendee role notification.
 */
 - (void)onLostAttendeeRightsNotification;
 
 /*!
-@brief This method will notify that lost data helper role.
+ @brief A lost data helper role notification.
 */
 - (void)onLostDataHelperRightsNotification;
 
 /*!
-@brief This method will notify that broadcast message.
-@param broadcastMsg the broadcast message received from host.
-@param senderID the SenderID.
+ @brief A broadcast message notification.
+ @param broadcastMsg The broadcast message received from host.
+ @param senderID The senderID.
 */
 - (void)onNewBroadcastMessageReceived:(NSString *_Nullable)broadcastMsg senderID:(NSUInteger)senderID;
 
 /*!
-@brief When BOOption.countdownSeconds != MobileRTCBOStopCountDown_Not_CountDown, host stop BO and all users receive the event.
-@param seconds, the countdown seconds.
-@warning Please leaveBO when the countdown ends.
+ @brief When BOOption.countdownSeconds != MobileRTCBOStopCountDown_Not_CountDown, host stop the breakout room and all users receive the event.
+ @param seconds The countdown in seconds.
+ @warning Please leave the breakout room when the countdown ends.
 */
 - (void)onBOStopCountDown:(NSUInteger)seconds;
 
 /*!
-@brief When you are in BO, host invite you return to main session, you will receive the event.
-@param hostName the host name.
-@param replyHandler the handler to reply for the main session invitation.
+ @brief When you are in a breakout room and the host invites you return to main session, you receive the event.
+ @param hostName the host name.
+ @param replyHandler the handler to reply for the main session invitation.
 */
 - (void)onHostInviteReturnToMainSession:(NSString *_Nullable)hostName replyHandler:(MobileRTCReturnToMainSessionHandler *_Nullable)replyHandler;
 
 /*!
-@brief When host change the BO status, all users receive the event.
-@param status current status of BO.
+ @brief When host change the breakout room status, all users receive the event.
+ @param status The current status of the breakout room.
 */
 - (void)onBOStatusChanged:(MobileRTCBOStatus)status;
+
+/*!
+ @brief When the host modifies the breakout room, all users receive the event.
+ @param newBOName The new brekaout room name.
+ @param newBOID The new breakout room ID.
+ */
+- (void)onBOSwitchRequestReceived:(NSString *_Nullable)newBOName newBOID:(NSString *_Nullable)newBOID;
 @end
 
 #pragma mark - MobileRTCReactionServiceDelegate
 @protocol MobileRTCReactionServiceDelegate <MobileRTCMeetingServiceDelegate>
-
 @optional
-/**
- * @brief Notify receive the emoji reaction.
- * @param userId The user id of the send emoji racetion.
- * @param type The send emoji racetion type.
- * @param skinTone The send emoji racetion skinstone.
+/*!
+ @brief Notify receipt of the emoji reaction.
+ @param userId The user ID of the send emoji reaction.
+ @param type The send emoji reaction type.
+ @param skinTone The send emoji reaction skintone.
  */
 - (void)onEmojiReactionReceived:(NSUInteger)userId reactionType:(MobileRTCEmojiReactionType)type reactionSkinTone:(MobileRTCEmojiReactionSkinTone)skinTone;
+
+/*!
+ @brief Emoji reaction callback. This callback notifies the user when an emoji is received in the webinar.
+ @param type Specify the received reaction's type.
+ */
+- (void)onEmojiReactionReceivedInWebinar:(MobileRTCEmojiReactionType)type;
 
 @end
 
 
 #pragma mark - MobileRTCBOServiceDelegate
 @protocol MobileRTCBODataDelegate <MobileRTCMeetingServiceDelegate>
+@optional
 /*!
-@brief The bo meeting information updated.
-@param boId the identifier for the bo meeting.
+ @brief The updated breakout meeting information.
+ @param boId The identifier for the breakout meeting.
 */
 - (void)onBOInfoUpdated:(NSString *_Nullable)boId;
 
 /*!
-@brief The un-assigned user update.
+ @brief The unassigned user update.
 */
 - (void)onUnAssignedUserUpdated;
 
@@ -1130,23 +1356,23 @@
 
 #pragma mark - MobileRTCBOServiceDelegate
 @protocol MobileRTCBOAdminDelegate <MobileRTCMeetingServiceDelegate>
-
+@optional
 /*!
-@brief admin received help request from userID
-@param strUserID the identifier of the bo meeting user.
+ @brief Admin receives help request from userID.
+ @param strUserID The identifier of the breakout room meeting user.
 */
 - (void)onHelpRequestReceived:(NSString *_Nullable)strUserID;
 
 /*!
-@brief admin received error when start BO failed
-@param errType the error type defail of the failure.
+ @brief Admin receives an error when breakout room start fails.
+ @param errType The error type defail of the failure.
 */
 - (void)onStartBOError:(MobileRTCBOControllerError)errType;
 
 /*!
- @brief if it's timer BO, after start BO, you will receive the event.
- @param remaining remaining time,
- @param isTimesUpNotice true: when time is up, auto stop BO. false: don't auto stop BO.
+ @brief In a timed breakout, after starting a breakout room, you receive the event.
+ @param remaining Remaining time.
+ @param isTimesUpNotice true: when time is up, auto stop breakout room. false: don't auto stop breakout room.
  */
 - (void)onBOEndTimerUpdated:(NSUInteger)remaining isTimesUpNotice:(BOOL)isTimesUpNotice;
 
@@ -1154,20 +1380,20 @@
 
 #pragma mark - MobileRTCBOServiceDelegate
 @protocol MobileRTCBOAttendeeDelegate <MobileRTCMeetingServiceDelegate>
-
+@optional
 /*!
-@brief received the result of sending help request
-@param eResult the response result for the help request.
+ @brief Receive the result of sending a help request.
+ @param eResult The response result for the help request.
 */
 - (void)onHelpRequestHandleResultReceived:(MobileRTCBOHelpReply)eResult;
 
 /*!
-@brief host join current bo meeting.
+ @brief The host joins the current breakout meeting.
 */
 - (void)onHostJoinedThisBOMeeting;
 
 /*!
-@brief host left current bo meeting.
+ @brief The host leaves the current breakout meeting.
 */
 - (void)onHostLeaveThisBOMeeting;
 
@@ -1175,10 +1401,10 @@
 
 #pragma mark - MobileRTCBOServiceDelegate
 @protocol MobileRTCBOCreatorDelegate <MobileRTCMeetingServiceDelegate>
-
+@optional
 /*!
-@brief creator received BO identifier when create BO success
-@param BOID the identifier of the created bo.
+ @brief Creator receives breakout identifier when successfully creating the breakout room.
+ @param BOID The identifier of the created breakout.
 */
 - (void)onBOCreateSuccess:(NSString *_Nullable)BOID;
 

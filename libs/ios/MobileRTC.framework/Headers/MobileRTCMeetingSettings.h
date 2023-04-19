@@ -106,13 +106,6 @@
 @property (assign, nonatomic) BOOL recordButtonHidden;
 
 /*!
- @brief Enable/Disable Kubi Device in the meeting.
- @warning The option is available only on iPad if you want to use Kubi device. 
- @warning The function only for Zoom UI.
- */
-@property (assign, nonatomic) BOOL enableKubi;
-
-/*!
  @brief Change thumbnail video layout while viewing a share in the meeting.
  @warning If you set it to YES, the video of attendees will be placed at right of the Landscape(the device screen is oriented horizontally) or the bottom of Portrait(the device screen is oriented vertically) apart from the shared content, which means the video won't cover the content; if you set to NO, it will show only the video of active speaker and the video will be placed in the bottom right of the screen.
  @warning The function only for Zoom UI.
@@ -191,6 +184,17 @@
  @brief Enable Custom In-Meeting UI in meeting.
  */
 @property (assign, nonatomic) BOOL enableCustomMeeting;
+
+/*!
+ @brief hide feedback button on cloud whiteboard.
+ */
+@property (assign, nonatomic) BOOL hideFeedbackButtonOnCloudWhiteboard;
+
+/*!
+ @brief hide share button on cloud whiteboard.
+ */
+@property (assign, nonatomic) BOOL hideShareButtonOnCloudWhiteboard;
+
 /*!
  @brief Query if the user joins meeting with audio device. 
  @return YES means the audio device is automatically connected, otherwise not. 
@@ -279,6 +283,13 @@
  @warning The function only for Zoom UI.
  */
 - (void)disableGalleryView:(BOOL)disabled;
+
+/*!
+ @brief Enable or disable the new Zoom Whiteboard feature (different from Classic Whiteboard). This feature enabled by default.
+ @param disabled YES means disabled, otherwise not.
+ @warning The function only for Zoom UI.
+ */
+- (void)disableCloudWhiteboard:(BOOL)disabled;
 
 /*!
  @brief Query if it is disabled to call in.
@@ -464,8 +475,35 @@
 
 /*!
 @brief Query if the action of clear WebView's cache be disabled.
- @return Action of clear WebView's cache is disabled or not.
+@return Action of clear WebView's cache is disabled or not.
 */
 - (BOOL)isDisabledClearWebKitCache;
 
+/*!
+@brief Query if the option HIDE NON-VIDEO PARTICIPANTS is enabled.
+@return YES means enabled. NO not.
+*/
+- (BOOL)isHideNoVideoUsersEnabled;
+
+/*!
+@brief Set whether to enable the option HIDE NON-VIDEO PARTICIPANTS.
+@param enabled YES means enabled. NO not.
+*/
+- (void)setHideNoVideoUsersEnabled:(BOOL)enabled;
+
+/*
+@brief Enable or disable to hide the userself's view. isHidden TRUE indicates to enable to hide the userself's view.
+*/
+- (void)enableHideSelfView:(BOOL)isHidden;
+
+/*!
+ @brief Get the flag to enable/disable to hide userself's view.
+*/
+- (BOOL)isHideSelfViewEnabled;
+
+/*!
+ @brief Set the visibility of request local recording privilege dialog when attendee request local recording privilege. Default is displaying.
+ @param bHide YES indicates to display the tab. No not.
+*/
+- (void)hideRequestRecordPrivilegeDialog:(BOOL)bHide;
 @end

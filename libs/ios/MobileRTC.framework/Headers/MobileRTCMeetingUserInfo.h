@@ -120,6 +120,10 @@ typedef NS_ENUM(NSUInteger, MobileRTCFeedbackType) {
  */
 @property (nonatomic, assign) NSUInteger       userID;
 /*!
+ @brief Get the user persistent ID matched with the current user information.This ID persists for the duration of the main meeting.Once the main meeting ends, the ID will be discarded.
+ */
+@property (nonatomic, retain) NSString* _Nullable       persistentId;
+/*!
  @brief Determine if the information corresponds to the current user.
  */
 @property (nonatomic, assign) BOOL             isMySelf;
@@ -135,10 +139,6 @@ typedef NS_ENUM(NSUInteger, MobileRTCFeedbackType) {
  @brief The path to store the head portrait.
  */
 @property (nonatomic, retain) NSString* _Nonnull       avatarPath;
-/*!
- @brief Unread messages in the meeting.
- */
-@property (nonatomic, assign) NSInteger        unread;
 /*!
  @brief User's video status in the meeting.
  */
