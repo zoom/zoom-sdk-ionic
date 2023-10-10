@@ -97,23 +97,6 @@ public class AuthThread implements Callable<Boolean>, ZoomSDKInitializeListener 
     }
 
     /**
-     * setInitParameters
-     *
-     * Pass and set parameters needed to initialize Zoom SDK.
-     *
-     * @param appKey    Zoom SDK App Key.
-     * @param appSecret Zoom SDK App Secret.
-     * @param webDomain Zoom SDK Web Domain. Default is "zoom.us".
-     */
-    public void setInitParameters(String appKey, String appSecret, String webDomain) {
-        if (DEBUG) { Log.v(TAG, "Init parameter set"); }
-        this.initParams.appKey = appKey;
-        this.initParams.appSecret = appSecret;
-        this.initParams.domain = webDomain;
-        this.initParams.enableLog = true;
-    }
-
-    /**
      * call
      *
      * In call method, different methods will be called based on the action name.
@@ -196,7 +179,7 @@ public class AuthThread implements Callable<Boolean>, ZoomSDKInitializeListener 
 
     /**
      * onZoomAuthIdentityExpired
-     * 
+     *
      * A listener to get notified when the authentication identity has expired.
      */
     @Override

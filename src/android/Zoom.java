@@ -30,6 +30,7 @@ import us.zoom.sdk.InMeetingServiceListener;
 import us.zoom.sdk.InstantMeetingOptions;
 import us.zoom.sdk.JoinMeetingOptions;
 import us.zoom.sdk.JoinMeetingParams;
+import us.zoom.sdk.LocalRecordingRequestPrivilegeStatus;
 import us.zoom.sdk.MeetingError;
 import us.zoom.sdk.MeetingParameter;
 import us.zoom.sdk.MeetingService;
@@ -37,6 +38,7 @@ import us.zoom.sdk.MeetingServiceListener;
 import us.zoom.sdk.MeetingSettingsHelper;
 import us.zoom.sdk.MeetingStatus;
 import us.zoom.sdk.MeetingViewsOptions;
+import us.zoom.sdk.SDKNotificationServiceError;
 import us.zoom.sdk.StartMeetingOptions;
 import us.zoom.sdk.StartMeetingParams4NormalUser;
 import us.zoom.sdk.StartMeetingParamsWithoutLogin;
@@ -92,18 +94,6 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
         // Commenting below as it causes app crash as known change for latest sdk https://devforum.zoom.us/t/zoomsdk-getinstance-error-when-call-from-not-the-main-thread-since-android-meeting-sdk-v-5-11/71587
         // this.mZoomSDK = ZoomSDK.getInstance();
         switch (action) {
-            case "initialize":
-                String appKey = args.getString(0);
-                String appSecret = args.getString(1);
-                cordova.getActivity().runOnUiThread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                initialize(appKey, appSecret, callbackContext);
-                            }
-                        }
-                );
-                break;
             case "initializeWithJwt":
                 String jwt = args.getString(0);
                 cordova.getActivity().runOnUiThread(
@@ -200,100 +190,6 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
 
     mZoomSDK.initialize(cordova.getActivity(), listener, initParams);
   }
-
-  /**
-     * initialize
-     * <p>
-     * Initialize Zoom SDK.
-     *
-     * @param appKey          Zoom SDK app key.
-     * @param appSecret       Zoom SDK app secret.
-     * @param callbackContext Cordova callback context.
-     */
-    private void initialize(String appKey, String appSecret, CallbackContext callbackContext) {
-        if (DEBUG) {
-            Log.v(TAG, "********** Zoom's initialize called **********");
-        }
-
-        ZoomSDK mZoomSDK = ZoomSDK.getInstance();
-        // If the SDK has been successfully initialized, simply return.
-        if (mZoomSDK.isInitialized()) {
-            callbackContext.success("Initialize successfully!");
-            return;
-        }
-
-        // Note: When "null" is pass from JS to Android, it is transferred as a word "null".
-        if (appKey == null || appKey.trim().isEmpty() || appKey.equals("null")
-                || appSecret == null || appSecret.trim().isEmpty() || appSecret.equals("null")) {
-            callbackContext.error("Both SDK key and secret cannot be empty");
-            return;
-        }
-
-        ZoomSDKInitParams params = new ZoomSDKInitParams();
-        params.appKey = appKey;
-        params.appSecret = appSecret;
-        params.domain = this.WEB_DOMAIN;
-        params.enableLog = true;
-
-        ZoomSDKInitializeListener listener = new ZoomSDKInitializeListener() {
-            /**
-             * @param errorCode {@link us.zoom.sdk.ZoomError#ZOOM_ERROR_SUCCESS} if the SDK has been initialized successfully.
-             */
-            @Override
-            public void onZoomSDKInitializeResult(int errorCode, int internalErrorCode) {
-                if (errorCode == ZoomError.ZOOM_ERROR_SUCCESS) {
-                    Log.d(TAG, "Initialized the Zoom SDK");
-                    callbackContext.success("Initialize successfully!");
-                } else {
-                    Log.d(TAG, "Error initializing zoom sdk " + errorCode);
-                    callbackContext.error(errorCode);
-                }
-            }
-
-            @Override
-            public void onZoomAuthIdentityExpired() {
-            }
-        };
-
-        mZoomSDK.initialize(cordova.getActivity(), listener, params);
-
-//        try {
-//            AuthThread at = new AuthThread();                           // Prepare Auth Thread
-//            at.setCordova(cordova);                                     // Set cordova
-//            at.setCallbackContext(callbackContext);                     // Set callback context
-//            at.setAction("initialize");                                 // Set action
-//            at.setLock(LOCK);
-//            at.setInitParameters(appKey, appSecret, this.WEB_DOMAIN);   // Set init parameters
-//            FutureTask<Boolean> fr = new FutureTask<Boolean>(at);
-//
-//            cordova.getActivity().runOnUiThread(fr);                    // Run init method on main thread
-//
-//            boolean threadSuccess = fr.get();                           // False if has error.
-//            if (DEBUG) {
-//                Log.v(TAG, "******************Return from Future is: " + threadSuccess);
-//            }
-//
-//            if (threadSuccess) {
-//                // Wait until the initialize result is back.
-//                synchronized (LOCK) {
-//                    try {
-//                        if (DEBUG) {
-//                            Log.v(TAG, "Wait................................");
-//                        }
-//                        LOCK.wait();
-//                    } catch (InterruptedException e) {
-//                        if (DEBUG) {
-//                            Log.v(TAG, e.getMessage());
-//                        }
-//                    }
-//                }
-//            }
-//
-//            callbackContext.success("Initialize successfully!");
-//        } catch (Exception e) {
-//            callbackContext.error(e.getMessage());
-//        }
-    }
 
     /**
      * login
@@ -1149,7 +1045,12 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
 
     }
 
-    /**
+  @Override
+  public void onNotificationServiceStatus(SDKNotificationServiceStatus sdkNotificationServiceStatus, SDKNotificationServiceError sdkNotificationServiceError) {
+
+  }
+
+  /**
      * onZoomIdentityExpired
      * <p>
      * A listener to log user out once identity is expired.
@@ -1361,7 +1262,12 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
     public void onMeetingUserUpdated(long l) {
     }
 
-    @Override
+  @Override
+  public void onInMeetingUserAvatarPathUpdated(long l) {
+
+  }
+
+  @Override
     public void onMeetingHostChanged(long l) {
     }
 
@@ -1594,4 +1500,9 @@ public class Zoom extends CordovaPlugin implements ZoomSDKAuthenticationListener
     public void onMeetingLockStatus(boolean b) {
 
     }
+
+  @Override
+  public void onRequestLocalRecordingPrivilegeChanged(LocalRecordingRequestPrivilegeStatus localRecordingRequestPrivilegeStatus) {
+
+  }
 }
